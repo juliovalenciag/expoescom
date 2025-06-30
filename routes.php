@@ -77,21 +77,19 @@ class Dispatcher
         // }
 
         // 8) API participantes
-        if ($route === '/admin/api/participantes' && $method === 'GET') {
-            return (new AdminController)->apiList();
-        }
         if ($route === '/admin/api/participantes' && $method === 'POST') {
-            return (new AdminController)->apiCreate();
+            return (new AdminParticipantesController)->apiCreate();
         }
         if (preg_match('#^/admin/api/participantes/([\w\d]+)$#', $route, $m) && $method === 'PUT') {
-            return (new AdminController)->apiUpdate($m[1]);
+            return (new AdminParticipantesController)->apiUpdate($m[1]);
         }
         if (preg_match('#^/admin/api/participantes/([\w\d]+)$#', $route, $m) && $method === 'DELETE') {
-            return (new AdminController)->apiDelete($m[1]);
+            return (new AdminParticipantesController)->apiDelete($m[1]);
         }
         if (preg_match('#^/admin/api/participantes/([\w\d]+)/ganador$#', $route, $m) && $method === 'POST') {
-            return (new AdminController)->apiToggleWinner($m[1]);
+            return (new AdminParticipantesController)->marcarGanador($m[1]);
         }
+
 
         // 9) Asignar salón
         if (preg_match('#^/admin/asignar/(\d+)$#', $route, $m) && $method === 'GET') {

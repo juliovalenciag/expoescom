@@ -26,6 +26,7 @@ $unidadesPorAcademia = $_SESSION['unidadesPorAcademia'] ?? [];
   <link rel="stylesheet" href="/expoescom/assets/css/admin-dashboard.css" />
   <link rel="stylesheet" href="/expoescom/assets/css/admin-participantes.css" />
   <script defer src="/expoescom/assets/js/admin-participantes.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="admin-participantes">
@@ -142,8 +143,25 @@ $unidadesPorAcademia = $_SESSION['unidadesPorAcademia'] ?? [];
             <input type="text" name="apellido_materno" required />
           </div>
           <div class="field-group">
+            <label>CURP</label>
+            <input type="text" name="curp" required />
+          </div>
+          <div class="field-group">
             <label>Correo</label>
             <input type="email" name="correo" required />
+          </div>
+          <div class="field-group">
+            <label>Género</label>
+            <select name="genero" required>
+              <option value="">Selecciona</option>
+              <option value="F">Femenino</option>
+              <option value="M">Masculino</option>
+              <option value="O">Otro</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Contraseña (temporal)</label>
+            <input type="text" name="password" required placeholder="Al menos 6 caracteres" />
           </div>
           <div class="field-group">
             <label>Teléfono</label>
@@ -196,9 +214,17 @@ $unidadesPorAcademia = $_SESSION['unidadesPorAcademia'] ?? [];
             <label>Apellido Materno</label>
             <input type="text" name="apellido_materno" required />
           </div>
+
+
+
+
           <div class="field-group">
             <label>Correo</label>
             <input type="email" name="correo" required />
+          </div>
+          <div class="field-group">
+            <label>Contraseña (solo si deseas cambiarla)</label>
+            <input type="text" name="password" placeholder="Déjalo vacío para no cambiar" />
           </div>
           <div class="field-group">
             <label>Teléfono</label>

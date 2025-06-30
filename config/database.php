@@ -1,7 +1,6 @@
 <?php
 // config/database.php
-
-// Configuración de conexión (ajusta si tu usuario/contraseña son distintos)
+// Configuración de la base de datos para ExpoESCOM 2025
 $host    = '127.0.0.1';
 $dbname  = 'expoescom';
 $user    = 'root';

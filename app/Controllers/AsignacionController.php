@@ -4,7 +4,7 @@ namespace App\Controllers;
 class AsignacionController
 {
     protected $pdo;
-    // Fecha fija del evento (ajústala si hace falta)
+    
     protected $fechaExpo = '2025-10-15';
 
     public function __construct()
@@ -48,7 +48,7 @@ class AsignacionController
             $check->execute([$salon['id'], $horarioId, $this->fechaExpo]);
             $asignados = (int) $check->fetchColumn();
 
-            if ($asignados < 3) { // Solo 3 equipos por salón/bloque (3 horarios de 90min)
+            if ($asignados < 3) {
                 $inicio = clone $horaBase;
                 $inicio->modify('+' . (90 * $asignados) . ' minutes'); // Cada equipo 90min
                 $fin = clone $inicio;

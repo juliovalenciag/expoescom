@@ -49,6 +49,8 @@ CREATE TABLE horarios_bloques (
 CREATE TABLE alumnos (
   boleta   CHAR(10) PRIMARY KEY COMMENT 'Formato: PE/PP+8 dígitos o 10 dígitos',
   nombre   VARCHAR(100) NOT NULL,
+  apellido_paterno VARCHAR(50) NOT NULL,
+  apellido_materno VARCHAR(50) NOT NULL,
   genero   ENUM('Mujer','Hombre','Otro') NOT NULL,
   curp     VARBINARY(32)   NOT NULL COMMENT 'CURP cifrada AES-256',
   telefono CHAR(10)        NOT NULL,
@@ -94,6 +96,56 @@ CREATE TABLE miembros_equipo (
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
+
+DELIMITER $$
+CREATE PROCEDURE sp_registrar_en_equipo (
+  IN p_boleta        CHAR(10),
+  IN p_nombre_equipo VARCHAR(40),
+  IN p_nombre_proy   VARCHAR(120),
+  IN p_academia_id   INT,
+  IN p_horario_pref  ENUM('Matutino','Vespertino'),
+  IN p_unidad_id     INT
+)
+BEGIN
+  DECLARE v_equipo_id INT;
+
+  -- 1. Intentar obtener el equipo existente
+  SELECT id
+    INTO v_equipo_id
+    FROM equipos
+   WHERE nombre_equipo = p_nombre_equipo
+   LIMIT 1;
+
+  -- 2. Si no existe, crear uno nuevo
+  IF v_equipo_id IS NULL THEN
+    INSERT INTO equipos (
+      nombre_equipo,
+      nombre_proyecto,
+      academia_id,
+      horario_preferencia
+    ) VALUES (
+      p_nombre_equipo,
+      p_nombre_proy,
+      p_academia_id,
+      p_horario_pref
+    );
+    SET v_equipo_id = LAST_INSERT_ID();
+  END IF;
+
+  -- 3. Asociar al alumno al equipo
+  INSERT INTO miembros_equipo (
+    alumno_boleta,
+    equipo_id,
+    unidad_id
+  ) VALUES (
+    p_boleta,
+    v_equipo_id,
+    p_unidad_id
+  )
+  ON DUPLICATE KEY UPDATE
+    unidad_id = VALUES(unidad_id);
+END$$
+DELIMITER ;
 
 -- ====================================================
 -- 4. Asignaciones de salón, fecha y horario
@@ -307,17 +359,12 @@ INSERT INTO unidades_aprendizaje (nombre, academia_id) VALUES
 
 -- 6.3. Salones
 INSERT INTO salones (id, capacidad) VALUES
-  ('A1',5),('A2',5),('B1',5),('B2',5),('C1',5);
+  ('4010',5),('4011',5),('4012',5),('4013',5),('4014',5);
 
 -- 6.4. Bloques horarios
 INSERT INTO horarios_bloques (id, tipo, hora_inicio, hora_fin) VALUES
   (1,'Matutino','10:30:00','13:30:00'),
   (2,'Vespertino','15:00:00','18:00:00');
-
-
-ALTER TABLE alumnos
-  ADD COLUMN apellido_paterno VARCHAR(50) NOT NULL AFTER nombre,
-  ADD COLUMN apellido_materno VARCHAR(50) NOT NULL AFTER apellido_paterno;
 
 INSERT INTO administradores (usuario, password) VALUES
   ('admin', '$2y$10$7CXPq4Cp3fFacAGjRnYeqOuFWqnxXuahQiv.UpYrJUBH6py/zk3Aq');

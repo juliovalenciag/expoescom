@@ -90,24 +90,52 @@ class AdminController
             return;
         }
 
-        $stmt = $this->pdo->prepare("
-        INSERT INTO alumnos (boleta, nombre, apellido_paterno, apellido_materno, genero, telefono, semestre, carrera, correo, password)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ");
-        $stmt->execute([
-            $data['boleta'],
-            $data['nombre'],
-            $data['apellido_paterno'],
-            $data['apellido_materno'],
-            $data['genero'],
-            $data['telefono'],
-            $data['semestre'],
-            $data['carrera'],
-            $data['correo'],
-            password_hash($data['password'], PASSWORD_BCRYPT)
-        ]);
+        try {
+            $this->pdo->beginTransaction();
 
-        echo json_encode(['success' => true]);
+            // 1. Insertar alumno
+            $stmt = $this->pdo->prepare("
+            INSERT INTO alumnos (boleta, nombre, apellido_paterno, apellido_materno, genero, telefono, semestre, carrera, correo, password)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+            $stmt->execute([
+                $data['boleta'],
+                $data['nombre'],
+                $data['apellido_paterno'],
+                $data['apellido_materno'],
+                $data['genero'],
+                $data['telefono'],
+                $data['semestre'],
+                $data['carrera'],
+                $data['correo'],
+                password_hash($data['password'], PASSWORD_BCRYPT)
+            ]);
+
+            // 2. Crear equipo (con nombre temporal si no se ingresa otro)
+            $nombreEquipo = "Equipo " . $data['boleta'];
+            $nombreProyecto = "Proyecto de " . $data['nombre'];
+            $stmt = $this->pdo->prepare("
+            INSERT INTO equipos (nombre_equipo, nombre_proyecto, es_ganador)
+            VALUES (?, ?, 0)
+        ");
+            $stmt->execute([$nombreEquipo, $nombreProyecto]);
+            $equipoId = $this->pdo->lastInsertId();
+
+            // 3. Insertar en miembros_equipo
+            $stmt = $this->pdo->prepare("
+            INSERT INTO miembros_equipo (alumno_boleta, equipo_id)
+            VALUES (?, ?)
+        ");
+            $stmt->execute([$data['boleta'], $equipoId]);
+
+            $this->pdo->commit();
+
+            echo json_encode(['success' => true]);
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            http_response_code(500);
+            echo json_encode(['error' => 'Error al guardar: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -117,25 +145,57 @@ class AdminController
     {
         $data = json_decode(file_get_contents("php://input"), true);
 
-        $stmt = $this->pdo->prepare("
+        if (!$data) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Datos inválidos']);
+            return;
+        }
+
+        try {
+            if (!empty($data['password'])) {
+                $stmt = $this->pdo->prepare("
         UPDATE alumnos SET
-            nombre = ?, apellido_paterno = ?, apellido_materno = ?, genero = ?,
-            telefono = ?, semestre = ?, carrera = ?, correo = ?
+            nombre = ?, apellido_paterno = ?, apellido_materno = ?,
+            genero = ?, telefono = ?, semestre = ?, carrera = ?, correo = ?, password = ?
         WHERE boleta = ?
     ");
-        $stmt->execute([
-            $data['nombre'],
-            $data['apellido_paterno'],
-            $data['apellido_materno'],
-            $data['genero'],
-            $data['telefono'],
-            $data['semestre'],
-            $data['carrera'],
-            $data['correo'],
-            $boleta
-        ]);
+                $stmt->execute([
+                    $data['nombre'],
+                    $data['apellido_paterno'],
+                    $data['apellido_materno'],
+                    $data['genero'],
+                    $data['telefono'],
+                    $data['semestre'],
+                    $data['carrera'],
+                    $data['correo'],
+                    password_hash($data['password'], PASSWORD_BCRYPT),
+                    $boleta
+                ]);
+            } else {
+                $stmt = $this->pdo->prepare("
+        UPDATE alumnos SET
+            nombre = ?, apellido_paterno = ?, apellido_materno = ?,
+            genero = ?, telefono = ?, semestre = ?, carrera = ?, correo = ?
+        WHERE boleta = ?
+    ");
+                $stmt->execute([
+                    $data['nombre'],
+                    $data['apellido_paterno'],
+                    $data['apellido_materno'],
+                    $data['genero'],
+                    $data['telefono'],
+                    $data['semestre'],
+                    $data['carrera'],
+                    $data['correo'],
+                    $boleta
+                ]);
+            }
 
-        echo json_encode(['success' => true]);
+            echo json_encode(['success' => true]);
+        } catch (\PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Error al actualizar: ' . $e->getMessage()]);
+        }
     }
 
     /**

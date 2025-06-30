@@ -1,7 +1,5 @@
 <?php
-// index.php (colócalo en la raíz de tu proyecto, p.ej. htdocs/expoescom/index.php)
 
-// 0) Mostrar errores para depurar (retirar en producción)
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
