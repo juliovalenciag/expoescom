@@ -55,8 +55,12 @@
           <small id="usuarioError" class="error"></small>
         </div>
 
-        <div class="field-group pwd-group<?= !empty($errors['password']) ? ' invalid' : '' ?>">
-          <label for="password"><i class="fa-solid fa-lock"></i> Contraseña</label>
+        
+
+        <div class="field-group pwd-group <?= isset($errors['password']) ? 'invalid' : '' ?>">
+          <label for="password">
+            <i class="fa-solid fa-lock"></i> Contraseña
+          </label>
           <input
             type="password"
             id="password"
@@ -67,8 +71,11 @@
           <button type="button" class="eye-btn" data-target="password">
             <i class="fa-solid fa-eye"></i>
           </button>
-          <small id="passwordError" class="error"></small>
+          <small id="passwordError" class="error">
+            <?= htmlspecialchars($errors['password'] ?? '') ?>
+          </small>
         </div>
+
 
         <div class="buttons">
           <button type="submit" class="btn-submit">Entrar</button>
