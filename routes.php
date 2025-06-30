@@ -4,6 +4,7 @@ use App\Controllers\AlumnoController;
 use App\Controllers\AdminController;
 use App\Controllers\PDFController;
 use App\Controllers\UnidadController;
+use App\Controllers\AdminParticipantesController;
 
 require_once __DIR__ . '/config/app.php';
 class Dispatcher
@@ -58,12 +59,22 @@ class Dispatcher
         // 6) Panel admin
         if ($route === '/admin' && $method === 'GET') {
             return (new AdminController)->dashboard();
+
         }
 
-        // 7) Listado de participantes
         if ($route === '/admin/participantes' && $method === 'GET') {
-            return (new AdminController)->list();
+            return (new AdminParticipantesController)->index();
         }
+
+        // 6.2) Marcar ganador
+        if (preg_match('#^/admin/participantes/ganador/([\w\d]+)$#', $route, $m) && $method === 'GET') {
+            return (new AdminParticipantesController)->marcarGanador($m[1]);
+        }
+
+        // // 7) Listado de participantes
+        // if ($route === '/admin/participantes' && $method === 'GET') {
+        //     return (new AdminController)->list();
+        // }
 
         // 8) API participantes
         if ($route === '/admin/api/participantes' && $method === 'GET') {

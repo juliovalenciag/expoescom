@@ -123,6 +123,7 @@ class PDFController
 
         $pdf = new \PDFCabecera();
         $pdf->AddPage('L'); // horizontal
+        $pdf->Ln(25);
 
         $pdf->SetFont('Arial', 'B', 22);
         $pdf->Cell(0, 20, ("Diploma de Reconocimiento"), 0, 1, 'C');
@@ -133,7 +134,7 @@ class PDFController
         $pdf->Ln(5);
 
         $pdf->SetFont('Arial', 'I', 14);
-        $pdf->MultiCell(0, 8, ("Por su destacada participacion y desempeño en la ExpoESCOM 2025 con el proyecto:\n\"{$info['nombre_proyecto']}\""), 0, 'C');
+        $pdf->MultiCell(0, 8, ("Por su destacada participacion y esfuerzo en la ExpoESCOM 2025 con el proyecto:\n\"{$info['nombre_proyecto']}\""), 0, 'C');
         $pdf->Ln(20);
 
     
