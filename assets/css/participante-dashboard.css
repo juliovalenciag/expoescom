@@ -1,0 +1,117 @@
+/* assets/css/participante-dashboard.css */
+
+:root {
+  --primary: #004085;
+  --primary-light: #0056b3;
+  --bg-light: #f4f7fc;
+  --white: #fff;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --radius: 8px;
+  --transition: 0.3s ease;
+  --action-bg: #0056b3;
+  --action-bg-hover: #004085;
+  --action-color: #fff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body.participante-dashboard {
+  font-family: "Nunito", sans-serif;
+  background: var(--bg-light);
+  color: #333;
+  padding-top: 70px;
+}
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  box-shadow: 0 2px 6px var(--card-shadow);
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+}
+.site-header a {
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: 600;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.header-right img {
+  height: 40px;
+}
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  transition: background var(--transition), color var(--transition);
+}
+.btn-logout:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.dashboard-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.dashboard-title {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 2rem;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+.detail-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px var(--card-shadow);
+}
+.detail-card h4 {
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+}
+.detail-card p {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+.actions {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+.btn-action {
+  background: var(--action-bg);
+  color: var(--action-color);
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  border-radius: var(--radius);
+  transition: background var(--transition);
+}
+.btn-action:hover {
+  background: var(--action-bg-hover);
+}

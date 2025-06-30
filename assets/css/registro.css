@@ -1,0 +1,382 @@
+:root {
+  --primary: #004085;
+  --primary-light: #0056b3;
+  --bg: #eef3f9;
+  --white: #fff;
+  --error: #dc3545;
+  --success: #28a745;
+  --radius: 10px;
+  --transition: 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: "Nunito", sans-serif;
+  background: var(--bg);
+  color: #333;
+}
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background: var(--white);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+.site-header a {
+  text-decoration: none;
+  color: var(--primary);
+}
+.site-header img {
+  height: 50px;
+}
+
+.wrapper {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+.form-title {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: var(--primary);
+}
+
+.form-card {
+  overflow: visible;
+  padding-top: 24px;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.stepper {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 20px 30px;
+  padding: 0;
+  list-style: none;
+}
+.stepper::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #ddd;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  z-index: 0;
+}
+
+.bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+}
+.bar-fill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 4px;
+  background: var(--primary);
+  transform: translateY(-50%);
+  border-radius: 2px;
+  z-index: 0;
+  transition: width var(--transition);
+  width: 0; /* JS actualizará esto */
+}
+
+.step {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  cursor: pointer;
+}
+
+.step .circle {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ddd;
+  color: #666;
+  line-height: 36px;
+  font-size: 1rem;
+  transition: background var(--transition), color var(--transition);
+}
+
+.step.active .circle {
+  background: var(--primary);
+  color: #fff;
+}
+
+.step .label {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #666;
+  display: block;
+}
+
+.step.active .label {
+  color: var(--primary);
+}
+
+form {
+  padding: 20px;
+}
+.step-content {
+  display: none;
+}
+.step-content.active {
+  display: block;
+  animation: fadeIn var(--transition);
+}
+
+.field-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+.field-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.field-group label i {
+  margin-right: 6px;
+  color: var(--primary);
+}
+.field-group input,
+.field-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  transition: border-color var(--transition);
+}
+.field-group input:focus,
+.field-group select:focus {
+  border-color: var(--primary);
+}
+
+.pwd-group {
+  position: relative;
+}
+.eye-btn {
+  position: absolute;
+  top: 55%;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 1.1rem;
+  transition: color var(--transition);
+}
+.eye-btn:hover {
+  color: var(--primary);
+}
+
+.error {
+  display: none;
+  color: var(--error);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+.field-group.invalid .error {
+  display: block;
+}
+.field-group.invalid input,
+.field-group.invalid select {
+  border-color: var(--error);
+}
+
+.radio-list {
+  display: flex;
+  gap: 24px;
+  margin-top: 8px;
+}
+
+.radio-wrapper {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+
+.radio-wrapper input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.radio-custom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  display: inline-block;
+  transition: background var(--transition), border-color var(--transition);
+  margin-right: 8px;
+  box-shadow: inset 0 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.radio-custom::after {
+  content: "";
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: transparent;
+  margin: auto;
+  transition: background var(--transition);
+}
+
+.radio-wrapper input:checked + .radio-custom {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.radio-wrapper input:checked + .radio-custom::after {
+  background: #fff;
+}
+
+.radio-label {
+  font-size: 1rem;
+  color: #333;
+}
+
+.sexo-group.invalid .radio-list .radio-custom {
+  border-color: var(--error);
+}
+.sexo-group.invalid .error {
+  display: block;
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.btn-next,
+.btn-prev,
+.btn-submit {
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background var(--transition);
+}
+.btn-next,
+.btn-prev {
+  background: #777;
+  color: #fff;
+}
+.btn-next:hover,
+.btn-prev:hover {
+  background: #555;
+}
+.btn-submit {
+  background: var(--primary);
+  color: #fff;
+}
+.btn-submit:hover {
+  background: var(--primary-light);
+}
+
+.form-errors {
+  background-color: #fdecea;
+  border: 1px solid #f5c6cb;
+  border-radius: var(--radius);
+  padding: 30px;
+  margin-bottom: 1.5rem;
+}
+.form-errors ul {
+  list-style: disc inside;
+  margin: 0;
+  padding: 0;
+}
+.form-errors li {
+  color: #b71c1c;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.form-success {
+  color: var(--success);
+  margin-top: 10px;
+  text-align: center;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* … tu CSS existente … */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+.modal-overlay.active {
+  display: flex;
+}
+.modal {
+  background: #fff;
+  padding: 1rem;
+  border-radius: var(--radius);
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.modal-title {
+  margin-top: 0;
+  color: var(--primary);
+  font-size: 1.4rem;
+  text-align: center;
+}
+.modal-body {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin: 1rem 0;
+}
+.confirm-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.confirm-table th,
+.confirm-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

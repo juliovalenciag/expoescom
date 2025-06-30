@@ -1,0 +1,153 @@
+/* assets/css/admin-dashboard.css */
+
+/* 0) Variables y reset */
+:root {
+  --primary: #004085;
+  --primary-light: #0056b3;
+  --bg-light: #f4f7fc;
+  --white: #fff;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --radius: 8px;
+  --transition: 0.3s ease;
+  --action-bg: #0056b3;
+  --action-bg-hover: #004085;
+  --action-color: #fff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body.admin-dashboard {
+  font-family: "Nunito", sans-serif;
+  background: var(--bg-light);
+  color: #333;
+  padding-top: 70px; /* espacio para header */
+}
+
+/* 1) Header (igual que registro.css) */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  box-shadow: 0 2px 6px var(--card-shadow);
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+}
+.site-header a {
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: 600;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.header-right img {
+  height: 40px;
+}
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  transition: background var(--transition), color var(--transition);
+}
+.btn-logout:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* 2) Contenedor principal */
+.dashboard-container {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* 3) Título */
+.dashboard-title {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 2rem;
+}
+
+/* 4) Tarjetas de overview */
+.overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  transition: transform var(--transition);
+}
+.card:hover {
+  transform: translateY(-4px);
+}
+.card .icon {
+  font-size: 2.5rem;
+  color: var(--primary);
+  margin-right: 1rem;
+}
+.card .info {
+  text-align: left;
+}
+.card .stat {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+.card .label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* 5) Área de acciones */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--action-bg);
+  color: var(--action-color);
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background var(--transition);
+}
+.btn-action i {
+  font-size: 1.1rem;
+}
+.btn-action:hover {
+  background: var(--action-bg-hover);
+}
+
+/* 6) Responsive tweaks */
+@media (max-width: 600px) {
+  .actions {
+    flex-direction: column;
+  }
+}

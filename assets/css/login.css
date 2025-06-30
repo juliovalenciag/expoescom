@@ -1,0 +1,189 @@
+:root {
+  --primary: #004085;
+  --primary-light: #0056b3;
+  --bg: #eef3f9;
+  --white: #fff;
+  --error: #dc3545;
+  --radius: 10px;
+  --transition: 0.3s ease;
+  --login-admin: #28a745;
+  --login-admin-light: #5fd27e;
+}
+
+/* Reset y base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: "Nunito", sans-serif;
+  background: var(--bg);
+  color: #333;
+}
+
+/* 1) Cabecera fija (igual que en registro.css) */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+}
+.site-header a {
+  text-decoration: none;
+  color: var(--primary);
+}
+.site-header img {
+  height: 50px;
+}
+
+/* 2) Ajuste del body para login */
+body.login-page {
+  padding-top: 60px; /* espacio para header */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 60px);
+  padding: 20px;
+}
+
+/* 3) Tarjeta de login */
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--white);
+  padding: 2rem;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+/* 4) Título */
+.login-title {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary);
+}
+body.admin-login .login-title {
+  color: var(--login-admin);
+}
+
+/* 5) Campos */
+.field-group {
+  margin-bottom: 1rem;
+  position: relative;
+}
+.field-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+.field-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  transition: border-color var(--transition);
+}
+.field-group input:focus {
+  border-color: var(--primary);
+}
+
+/* 6) Errores inline */
+.field-group.invalid input {
+  border-color: var(--error);
+}
+.error {
+  display: block;
+  color: var(--error);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  min-height: 1em;
+}
+
+/* 7) Toggle de contraseña */
+.pwd-group {
+  position: relative;
+}
+.eye-btn {
+  position: absolute;
+  top: 55%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: color var(--transition);
+}
+.eye-btn:hover {
+  color: var(--primary);
+}
+
+/* 8) Botón de envío */
+.buttons {
+  margin-top: 1.5rem;
+}
+.btn-submit {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.btn-submit:hover {
+  background: var(--primary-light);
+}
+body.admin-login .btn-submit {
+  background: var(--login-admin);
+}
+body.admin-login .btn-submit:hover {
+  background: var(--login-admin-light);
+}
+
+/* 9) Pie con enlaces */
+.login-footer {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+.login-footer a {
+  color: var(--primary);
+  text-decoration: none;
+  margin: 0 0.5rem;
+}
+.login-footer a:hover {
+  text-decoration: underline;
+}
+
+/* 10) Errores generales encima del form */
+.form-errors {
+  background-color: #fdecea;
+  border: 1px solid #f5c6cb;
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.form-errors ul {
+  list-style: disc inside;
+}
+.form-errors li {
+  color: #b71c1c;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
