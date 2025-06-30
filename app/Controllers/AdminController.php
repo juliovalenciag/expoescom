@@ -68,149 +68,46 @@ class AdminController
      */
     public function apiList()
     {
-        session_start();
-        header('Content-Type: application/json; charset=utf-8');
-
-        // DEBUG
-        echo json_encode([
-            'admin' => $_SESSION['admin'] ?? null,
-            'session_id' => session_id()
-        ]);
-
-
-        try {
-            $sql = "
-        SELECT
-          a.boleta,
-          a.nombre,
-          a.apellido_paterno,
-          a.apellido_materno,
-          a.curp,
-          a.genero,
-          a.telefono,
-          a.semestre,
-          a.carrera,
-          a.correo,
-          e.id                   AS equipo_id,
-          e.nombre_equipo,
-          e.nombre_proyecto,
-          e.horario_preferencia,
-          e.academia_id,
-          me.unidad_id,
-          e.es_ganador,
-          s.salon_id,
-          hb.tipo                AS bloque,
-          hb.hora_inicio,
-          hb.hora_fin
+        $stmt = $this->pdo->query("
+        SELECT a.boleta, a.nombre, a.apellido_paterno, a.apellido_materno, a.correo, a.telefono,
+               a.semestre, a.carrera, e.nombre_equipo, e.nombre_proyecto, e.es_ganador
         FROM alumnos a
-        JOIN miembros_equipo me   ON me.alumno_boleta = a.boleta
-        JOIN equipos e           ON e.id            = me.equipo_id
-        LEFT JOIN asignaciones s ON s.equipo_id     = e.id
-        LEFT JOIN horarios_bloques hb 
-          ON hb.id = s.horario_id
-        ORDER BY a.boleta
-        ";
-
-            $rows = $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
-            echo json_encode($rows, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        } catch (\Throwable $e) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        }
+        LEFT JOIN miembros_equipo me ON me.alumno_boleta = a.boleta
+        LEFT JOIN equipos e ON e.id = me.equipo_id
+    ");
+        echo json_encode($stmt->fetchAll());
     }
-
     /**
      * 8b) API: crear participante + equipo + miembro
      */
     public function apiCreate()
     {
-        header('Content-Type: application/json; charset=utf-8');
-        $data = json_decode(file_get_contents('php://input'), true) ?: [];
+        $data = json_decode(file_get_contents("php://input"), true);
 
-        $required = [
-            'boleta',
-            'nombre',
-            'apellido_paterno',
-            'apellido_materno',
-            'genero',
-            'telefono',
-            'semestre',
-            'carrera',
-            'correo',
-            'nombre_equipo',
-            'nombre_proyecto',
-            'academia_id',
-            'unidad_id',
-            'horario_preferencia'
-        ];
-        foreach ($required as $f) {
-            if (empty($data[$f])) {
-                http_response_code(422);
-                echo json_encode(['success' => false, 'error' => "Falta el campo: {$f}"]);
-                return;
-            }
-        }
-
-        try {
-            $this->pdo->beginTransaction();
-
-            // 1) Alumno (curp/password vacío)
-            $stmt = $this->pdo->prepare("
-                INSERT INTO alumnos 
-                  (boleta,nombre,apellido_paterno,apellido_materno,
-                   genero,curp,telefono,semestre,carrera,correo,password)
-                VALUES 
-                  (:boleta,:nombre,:ap,:am,:genero,'',:telefono,:semestre,:carrera,:correo,'')
-            ");
-            $stmt->execute([
-                ':boleta' => $data['boleta'],
-                ':nombre' => $data['nombre'],
-                ':ap' => $data['apellido_paterno'],
-                ':am' => $data['apellido_materno'],
-                ':genero' => $data['genero'],
-                ':telefono' => $data['telefono'],
-                ':semestre' => (int) $data['semestre'],
-                ':carrera' => $data['carrera'],
-                ':correo' => $data['correo'],
-            ]);
-
-            // 2) Equipo
-            $stmt = $this->pdo->prepare("
-                INSERT INTO equipos 
-                  (nombre_equipo,nombre_proyecto,academia_id,horario_preferencia)
-                VALUES 
-                  (:ne,:np,:aid,:hp)
-            ");
-            $stmt->execute([
-                ':ne' => $data['nombre_equipo'],
-                ':np' => $data['nombre_proyecto'],
-                ':aid' => (int) $data['academia_id'],
-                ':hp' => $data['horario_preferencia'],
-            ]);
-            $equipoId = (int) $this->pdo->lastInsertId();
-
-            // 3) Miembro
-            $stmt = $this->pdo->prepare("
-                INSERT INTO miembros_equipo 
-                  (alumno_boleta,equipo_id,unidad_id)
-                VALUES 
-                  (:boleta,:eid,:uid)
-            ");
-            $stmt->execute([
-                ':boleta' => $data['boleta'],
-                ':eid' => $equipoId,
-                ':uid' => (int) $data['unidad_id'],
-            ]);
-
-            $this->pdo->commit();
-            http_response_code(201);
-            echo json_encode(['success' => true, 'message' => 'Creación exitosa']);
-        } catch (\Exception $e) {
-            $this->pdo->rollBack();
+        if (!$data) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            echo json_encode(['error' => 'Datos inválidos']);
+            return;
         }
-        exit;
+
+        $stmt = $this->pdo->prepare("
+        INSERT INTO alumnos (boleta, nombre, apellido_paterno, apellido_materno, genero, telefono, semestre, carrera, correo, password)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
+        $stmt->execute([
+            $data['boleta'],
+            $data['nombre'],
+            $data['apellido_paterno'],
+            $data['apellido_materno'],
+            $data['genero'],
+            $data['telefono'],
+            $data['semestre'],
+            $data['carrera'],
+            $data['correo'],
+            password_hash($data['password'], PASSWORD_BCRYPT)
+        ]);
+
+        echo json_encode(['success' => true]);
     }
 
     /**
@@ -218,45 +115,27 @@ class AdminController
      */
     public function apiUpdate(string $boleta)
     {
-        header('Content-Type: application/json; charset=utf-8');
-        $data = json_decode(file_get_contents('php://input'), true) ?: [];
+        $data = json_decode(file_get_contents("php://input"), true);
 
-        if (empty($data['nombre']) || empty($data['correo'])) {
-            http_response_code(422);
-            echo json_encode(['success' => false, 'error' => 'Nombre y correo obligatorios']);
-            return;
-        }
+        $stmt = $this->pdo->prepare("
+        UPDATE alumnos SET
+            nombre = ?, apellido_paterno = ?, apellido_materno = ?, genero = ?,
+            telefono = ?, semestre = ?, carrera = ?, correo = ?
+        WHERE boleta = ?
+    ");
+        $stmt->execute([
+            $data['nombre'],
+            $data['apellido_paterno'],
+            $data['apellido_materno'],
+            $data['genero'],
+            $data['telefono'],
+            $data['semestre'],
+            $data['carrera'],
+            $data['correo'],
+            $boleta
+        ]);
 
-        try {
-            $stmt = $this->pdo->prepare("
-                UPDATE alumnos SET
-                  nombre           = :nombre,
-                  apellido_paterno = :ap,
-                  apellido_materno = :am,
-                  genero           = :genero,
-                  telefono         = :telefono,
-                  semestre         = :semestre,
-                  carrera          = :carrera,
-                  correo           = :correo
-                WHERE boleta = :boleta
-            ");
-            $stmt->execute([
-                ':nombre' => $data['nombre'],
-                ':ap' => $data['apellido_paterno'] ?? '',
-                ':am' => $data['apellido_materno'] ?? '',
-                ':genero' => $data['genero'] ?? 'Otro',
-                ':telefono' => $data['telefono'] ?? '',
-                ':semestre' => (int) ($data['semestre'] ?? 1),
-                ':carrera' => $data['carrera'] ?? 'ISC',
-                ':correo' => $data['correo'],
-                ':boleta' => $boleta
-            ]);
-            echo json_encode(['success' => true, 'message' => 'Actualización exitosa']);
-        } catch (\Exception $e) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        }
-        exit;
+        echo json_encode(['success' => true]);
     }
 
     /**
@@ -264,16 +143,10 @@ class AdminController
      */
     public function apiDelete(string $boleta)
     {
-        header('Content-Type: application/json; charset=utf-8');
-        try {
-            $stmt = $this->pdo->prepare("DELETE FROM alumnos WHERE boleta = ?");
-            $stmt->execute([$boleta]);
-            echo json_encode(['success' => true, 'message' => 'Eliminación exitosa']);
-        } catch (\Exception $e) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        }
-        exit;
+        $stmt = $this->pdo->prepare("DELETE FROM alumnos WHERE boleta = ?");
+        $stmt->execute([$boleta]);
+
+        echo json_encode(['success' => true]);
     }
 
     /**
@@ -281,45 +154,43 @@ class AdminController
      */
     public function apiToggleWinner(string $boleta)
     {
-        header('Content-Type: application/json; charset=utf-8');
-        try {
-            $stmt = $this->pdo->prepare("
-                SELECT e.id, e.es_ganador
-                  FROM miembros_equipo me
-                  JOIN equipos e ON e.id = me.equipo_id
-                 WHERE me.alumno_boleta = ?
-            ");
-            $stmt->execute([$boleta]);
-            $row = $stmt->fetch();
-            if (!$row)
-                throw new \Exception("Equipo no encontrado");
+        // obtener equipo_id
+        $stmt = $this->pdo->prepare("
+        SELECT equipo_id FROM miembros_equipo WHERE alumno_boleta = ?
+    ");
+        $stmt->execute([$boleta]);
+        $equipoId = $stmt->fetchColumn();
 
-            $nuevo = $row['es_ganador'] ? 0 : 1;
-            $this->pdo
-                ->prepare("UPDATE equipos SET es_ganador = ? WHERE id = ?")
-                ->execute([$nuevo, $row['id']]);
-
-            echo json_encode(['success' => true, 'es_ganador' => (bool) $nuevo]);
-        } catch (\Exception $e) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        if (!$equipoId) {
+            http_response_code(404);
+            echo json_encode(['error' => 'No se encontró el equipo']);
+            return;
         }
-        exit;
+
+        // alternar el valor de ganador
+        $stmt = $this->pdo->prepare("
+        UPDATE equipos
+        SET es_ganador = NOT es_ganador
+        WHERE id = ?
+    ");
+        $stmt->execute([$equipoId]);
+
+        echo json_encode(['success' => true]);
     }
 
     /**
      * 9) Asignar salón y horario
      */
-    public function asignar(int $equipoId)
-    {
-        try {
-            // asignarSalon($equipoId, null) => delega el horario si no se pasa
-            $res = (new AsignacionController)->asignarSalon($equipoId, null);
-            $_SESSION['success'] = "Salón {$res['salon']} / bloque {$res['bloque']}";
-        } catch (\Exception $e) {
-            $_SESSION['errors'] = ["Error al asignar: {$e->getMessage()}"];
-        }
-        header('Location: /expoescom/admin');
-        exit;
-    }
+    // public function asignar(int $equipoId)
+    // {
+    //     try {
+    //         // asignarSalon($equipoId, null) => delega el horario si no se pasa
+    //         $res = (new AsignacionController)->asignarSalon($equipoId, null);
+    //         $_SESSION['success'] = "Salón {$res['salon']} / bloque {$res['bloque']}";
+    //     } catch (\Exception $e) {
+    //         $_SESSION['errors'] = ["Error al asignar: {$e->getMessage()}"];
+    //     }
+    //     header('Location: /expoescom/admin');
+    //     exit;
+    // }
 }

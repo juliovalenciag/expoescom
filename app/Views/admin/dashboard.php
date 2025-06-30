@@ -62,9 +62,9 @@
         <a href="/expoescom/admin/participantes" class="btn-action">
           <i class="fa-solid fa-list"></i> Ver Participantes
         </a>
-        <a href="/expoescom/admin/participantes" class="btn-action">
+        <!-- <a href="/expoescom/admin/participantes" class="btn-action">
           <i class="fa-solid fa-door-open"></i> Asignar Salones
-        </a>
+        </a> -->
       </section>
     </main>
   </body>

@@ -7,8 +7,8 @@
   --success: #28a745;
   --radius: 8px;
   --transition: 0.3s ease;
-  --btn-new-bg: #28a745;
-  --btn-new-hover: #218838;
+  --btn-new-bg: #004085;
+  --btn-new-hover: #0056b3;
 }
 
 * {
@@ -197,6 +197,44 @@ body.admin-participantes {
 }
 .btn-edit:hover {
   background: #0056b3;
+}
+
+.acciones {
+  display: flex;
+  gap: 0.5rem;
+}
+.acciones button {
+  padding: 0.4rem 0.6rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.btn-edit {
+  background: #007bff;
+  color: white;
+}
+.btn-edit:hover {
+  background: #0056b3;
+}
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+.btn-delete:hover {
+  background: #c82333;
+}
+.btn-toggle-winner {
+  background: #ffc107;
+  color: black;
+}
+.btn-toggle-winner:hover {
+  background: #e0a800;
+}
+.btn-toggle-winner.active {
+  background: #6c757d;
+  color: white;
 }
 
 /* Modales */
