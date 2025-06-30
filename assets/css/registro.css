@@ -74,7 +74,7 @@ body {
   background: #ddd;
   transform: translateY(-50%);
   border-radius: 2px;
-  z-index: 0;
+
 }
 
 .bar {
@@ -99,7 +99,7 @@ body {
 
 .step {
   position: relative;
-  z-index: 1;
+  z-index: 0;
   text-align: center;
   cursor: pointer;
 }
@@ -271,6 +271,7 @@ form {
 }
 .btn-next,
 .btn-prev,
+.btn-clear,
 .btn-submit {
   padding: 10px 20px;
   border: none;
@@ -294,6 +295,14 @@ form {
 }
 .btn-submit:hover {
   background: var(--primary-light);
+}
+
+.btn-clear {
+  background: #f0f0f0;
+  color: #333;
+}
+.btn-clear:hover {
+  background: #e0e0e0;
 }
 
 .form-errors {
@@ -331,7 +340,6 @@ form {
   }
 }
 
-/* … tu CSS existente … */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -342,6 +350,7 @@ form {
   display: none;
   justify-content: center;
   align-items: center;
+  z-index: 2;
 }
 .modal-overlay.active {
   display: flex;

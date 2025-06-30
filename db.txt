@@ -314,10 +314,6 @@ INSERT INTO horarios_bloques (id, tipo, hora_inicio, hora_fin) VALUES
   (1,'Matutino','10:30:00','13:30:00'),
   (2,'Vespertino','15:00:00','18:00:00');
 
--- 6.5. Administrador inicial (reemplaza la contraseña por un hash bcrypt real)
-INSERT INTO administradores (usuario, password) VALUES
-  ('admin', '$2y$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
-
 
 ALTER TABLE alumnos
   ADD COLUMN apellido_paterno VARCHAR(50) NOT NULL AFTER nombre,
@@ -325,3 +321,7 @@ ALTER TABLE alumnos
 
 INSERT INTO administradores (usuario, password) VALUES
   ('admin', '$2y$10$7CXPq4Cp3fFacAGjRnYeqOuFWqnxXuahQiv.UpYrJUBH6py/zk3Aq');
+
+ALTER TABLE asignaciones
+  ADD COLUMN hora_inicio TIME AFTER fecha,
+  ADD COLUMN hora_fin TIME AFTER hora_inicio;

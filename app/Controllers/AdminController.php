@@ -37,28 +37,28 @@ class AdminController
     public function list()
     {
         // 1) Cargar academias con su info de horario
-        $stmt = $this->pdo->query("SELECT id, nombre FROM academias ORDER BY nombre");
-        $academias = $stmt->fetchAll();
+        // $stmt = $this->pdo->query("SELECT id, nombre FROM academias ORDER BY nombre");
+        // $academias = $stmt->fetchAll();
 
-        // definir IDs que son Matutino
-        $idsMatutino = [/* p.ej. 3,4,6,10 */];
-        foreach ($academias as &$a) {
-            $a['horarios'] = in_array($a['id'], $idsMatutino, true)
-                ? ['Matutino']
-                : ['Vespertino'];
-        }
-        unset($a);
+        // // definir IDs que son Matutino
+        // $idsMatutino = [/* p.ej. 3,4,6,10 */];
+        // foreach ($academias as &$a) {
+        //     $a['horarios'] = in_array($a['id'], $idsMatutino, true)
+        //         ? ['Matutino']
+        //         : ['Vespertino'];
+        // }
+        // unset($a);
 
-        // 2) Cargar unidades agrupadas por academia
-        $stmt = $this->pdo->query("SELECT id, nombre, academia_id FROM unidades_aprendizaje ORDER BY nombre");
-        $unidades = $stmt->fetchAll();
-        $unidadesPorAcademia = [];
-        foreach ($unidades as $u) {
-            $unidadesPorAcademia[$u['academia_id']][] = [
-                'id' => $u['id'],
-                'nombre' => $u['nombre'],
-            ];
-        }
+        // // 2) Cargar unidades agrupadas por academia
+        // $stmt = $this->pdo->query("SELECT id, nombre, academia_id FROM unidades_aprendizaje ORDER BY nombre");
+        // $unidades = $stmt->fetchAll();
+        // $unidadesPorAcademia = [];
+        // foreach ($unidades as $u) {
+        //     $unidadesPorAcademia[$u['academia_id']][] = [
+        //         'id' => $u['id'],
+        //         'nombre' => $u['nombre'],
+        //     ];
+        // }
 
         // 3) Pasar todo a la vista
         include __DIR__ . '/../Views/admin/participantes.php';

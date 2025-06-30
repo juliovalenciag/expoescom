@@ -241,27 +241,34 @@ class AlumnoController
         }
 
         $stmt = $this->pdo->prepare("
-            SELECT
-              a.boleta,
-              a.nombre,
-              a.apellido_paterno,
-              a.apellido_materno,
-              e.es_ganador,
-              s.salon_id,
-              hb.tipo      AS bloque,
-              hb.hora_inicio,
-              hb.hora_fin
-            FROM alumnos a
-            JOIN miembros_equipo me   ON me.alumno_boleta = a.boleta
-            JOIN equipos e           ON e.id            = me.equipo_id
-            LEFT JOIN asignaciones s ON s.equipo_id     = e.id
-            LEFT JOIN horarios_bloques hb 
-              ON hb.id = s.horario_id
-            WHERE a.boleta = ?
-        ");
+SELECT
+      a.boleta,
+      a.nombre,
+      a.apellido_paterno,
+      a.apellido_materno,
+      a.genero,
+      a.telefono,
+      a.correo,
+      a.semestre,
+      a.carrera,
+      e.nombre_equipo,
+      e.nombre_proyecto,
+      e.es_ganador,
+      s.salon_id,
+      s.hora_inicio,
+      s.hora_fin,
+      hb.tipo AS bloque
+    FROM alumnos a
+    JOIN miembros_equipo me ON me.alumno_boleta = a.boleta
+    JOIN equipos e ON e.id = me.equipo_id
+    LEFT JOIN asignaciones s ON s.equipo_id = e.id
+    LEFT JOIN horarios_bloques hb ON hb.id = s.horario_id
+    WHERE a.boleta = ?
+");
         $stmt->execute([$boleta]);
-        $info = $stmt->fetch();
+        $info = $stmt->fetch(\PDO::FETCH_ASSOC); // <-- importante para acceder con claves string
 
         include __DIR__ . '/../Views/participante/dashboard.php';
     }
+
 }

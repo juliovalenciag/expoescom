@@ -19,7 +19,7 @@ $unidadesPorAcademia = $_SESSION['unidadesPorAcademia'] ?? [];
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Participantes · Panel Admin · ExpoEscom</title>
-  <link rel="icon" href="/expoescom/assets/images/favicon.ico" />
+  k
   <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
   <link href="https://fonts.googleapis.com/css?family=Nunito:400,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/expoescom/assets/css/admin-dashboard.css" />
@@ -196,7 +196,7 @@ $unidadesPorAcademia = $_SESSION['unidadesPorAcademia'] ?? [];
         <fieldset>
           <legend>Datos de Concurso</legend>
           <div class="form-grid">
-            <div class="field-group">
+            <!-- <div class="field-group">
               <label for="createHorario">Horario preferido</label>
               <select id="createHorario" name="horario_preferencia" required>
                 <option value="">--</option>
@@ -215,7 +215,7 @@ $unidadesPorAcademia = $_SESSION['unidadesPorAcademia'] ?? [];
               <select id="createUnidad" name="unidad_id" disabled required>
                 <option value="">--</option>
               </select>
-            </div>
+            </div> -->
             <div class="field-group">
               <label for="createProyecto">Proyecto</label>
               <input id="createProyecto" name="nombre_proyecto" type="text" required minlength="3" />

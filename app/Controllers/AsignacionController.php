@@ -22,33 +22,52 @@ class AsignacionController
      */
     public function asignarSalon(int $equipoId, int $horarioId): string
     {
-        // 1) Obtener todos los salones
+        // Obtener salones disponibles ordenados
         $stmt = $this->pdo->query("SELECT id, capacidad FROM salones ORDER BY id");
         $salones = $stmt->fetchAll();
 
-        // 2) Revisar capacidad de cada uno
+        // Define bloques por tipo (matutino o vespertino)
+        $horasBase = $horarioId === 1 ? '10:30' : '15:00';
+        $horaBase = new \DateTime($horasBase);
+
         $check = $this->pdo->prepare("
-            SELECT COUNT(*) 
-              FROM asignaciones 
-             WHERE salon_id = ? 
-               AND horario_id = ? 
-               AND fecha = ?
-        ");
+        SELECT COUNT(*) FROM asignaciones
+         WHERE salon_id = ?
+           AND horario_id = ?
+           AND fecha = ?
+    ");
 
         $insert = $this->pdo->prepare("
-            INSERT INTO asignaciones (equipo_id, salon_id, horario_id, fecha)
-            VALUES (?, ?, ?, ?)
-        ");
+        INSERT INTO asignaciones
+            (equipo_id, salon_id, horario_id, fecha, hora_inicio, hora_fin)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ");
 
         foreach ($salones as $salon) {
+            // Contar cuántos hay ya asignados
             $check->execute([$salon['id'], $horarioId, $this->fechaExpo]);
-            if ($check->fetchColumn() < $salon['capacidad']) {
-                // Hay espacio: hacemos la asignación
-                $insert->execute([$equipoId, $salon['id'], $horarioId, $this->fechaExpo]);
+            $asignados = (int) $check->fetchColumn();
+
+            if ($asignados < 3) { // Solo 3 equipos por salón/bloque (3 horarios de 90min)
+                $inicio = clone $horaBase;
+                $inicio->modify('+' . (90 * $asignados) . ' minutes'); // Cada equipo 90min
+                $fin = clone $inicio;
+                $fin->modify('+60 minutes'); // 60 min exposición
+
+                $insert->execute([
+                    $equipoId,
+                    $salon['id'],
+                    $horarioId,
+                    $this->fechaExpo,
+                    $inicio->format('H:i:s'),
+                    $fin->format('H:i:s')
+                ]);
+
                 return $salon['id'];
             }
         }
 
-        throw new \Exception("No hay salones disponibles en ese bloque horario.");
+        throw new \Exception("No hay salones disponibles en este bloque horario.");
     }
+
 }

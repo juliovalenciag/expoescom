@@ -301,6 +301,7 @@
             </div>
             <div class="buttons">
               <button type="button" class="btn-prev">Atrás</button>
+              <button type="button" id="clearForm" class="btn-clear">Limpiar Todo</button>
               <button type="submit" class="btn-submit">Enviar</button>
             </div>
             <small id="form-error" class="form-error"></small>

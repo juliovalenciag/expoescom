@@ -52,47 +52,47 @@ document.addEventListener("DOMContentLoaded", () => {
   bindValidations(formEdit);
 
   // —— 2) Cascada: horario → academias → unidades ——
-  const selHorC = document.getElementById("createHorario");
-  const selAcaC = document.getElementById("createAcademia");
-  const selUniC = document.getElementById("createUnidad");
-  const selHorE = document.getElementById("editHorario");
-  const selAcaE = document.getElementById("editAcademia");
-  const selUniE = document.getElementById("editUnidad");
+  // const selHorC = document.getElementById("createHorario");
+  // const selAcaC = document.getElementById("createAcademia");
+  // const selUniC = document.getElementById("createUnidad");
+  // const selHorE = document.getElementById("editHorario");
+  // const selAcaE = document.getElementById("editAcademia");
+  // const selUniE = document.getElementById("editUnidad");
 
-  function clear(sel) {
-    sel.innerHTML = `<option value="">--</option>`;
-    sel.disabled = true;
-  }
+  // function clear(sel) {
+  //   sel.innerHTML = `<option value="">--</option>`;
+  //   sel.disabled = true;
+  // }
 
-  function setupCascade(hor, aca, uni) {
-    clear(aca);
-    clear(uni);
-    hor.addEventListener("change", () => {
-      clear(aca);
-      clear(uni);
-      const h = hor.value;
-      if (!h) return;
-      aca.disabled = false;
-      window.academias
-        .filter((a) => a.horarios.includes(h))
-        .forEach((a) => aca.add(new Option(a.nombre, a.id)));
-    });
-    aca.addEventListener("change", () => {
-      clear(uni);
-      const id = aca.value;
-      if (!id) return;
-      uni.disabled = false;
-      (window.unidadesPorAcademia[id] || []).forEach((u) =>
-        uni.add(new Option(u.nombre, u.id))
-      );
-    });
-  }
-  if (selHorC && selAcaC && selUniC) {
-    setupCascade(selHorC, selAcaC, selUniC);
-  }
-  if (selHorE && selAcaE && selUniE) {
-    setupCascade(selHorE, selAcaE, selUniE);
-  }
+  // function setupCascade(hor, aca, uni) {
+  //   clear(aca);
+  //   clear(uni);
+  //   hor.addEventListener("change", () => {
+  //     clear(aca);
+  //     clear(uni);
+  //     const h = hor.value;
+  //     if (!h) return;
+  //     aca.disabled = false;
+  //     window.academias
+  //       .filter((a) => a.horarios.includes(h))
+  //       .forEach((a) => aca.add(new Option(a.nombre, a.id)));
+  //   });
+  //   aca.addEventListener("change", () => {
+  //     clear(uni);
+  //     const id = aca.value;
+  //     if (!id) return;
+  //     uni.disabled = false;
+  //     (window.unidadesPorAcademia[id] || []).forEach((u) =>
+  //       uni.add(new Option(u.nombre, u.id))
+  //     );
+  //   });
+  // }
+  // if (selHorC && selAcaC && selUniC) {
+  //   setupCascade(selHorC, selAcaC, selUniC);
+  // }
+  // if (selHorE && selAcaE && selUniE) {
+  //   setupCascade(selHorE, selAcaE, selUniE);
+  // }
 
   // —— 3) CRUD en tabla ——
   async function loadTable() {

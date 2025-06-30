@@ -219,6 +219,22 @@ document.addEventListener("DOMContentLoaded", () => {
     modal.classList.add("active");
   }
 
+  document.getElementById("clearForm").addEventListener("click", () => {
+    if (confirm("¿Estás seguro de que quieres borrar todos los datos?")) {
+      document.getElementById("registroForm").reset();
+      document
+        .querySelectorAll(".step-content")
+        .forEach((s) => s.classList.remove("active"));
+      document
+        .querySelector('.step-content[data-step="1"]')
+        .classList.add("active");
+      document
+        .querySelectorAll(".step")
+        .forEach((s) => s.classList.remove("active"));
+      document.querySelector('.step[data-step="1"]').classList.add("active");
+    }
+  });
+
   // Asocia y más
   form.addEventListener("submit", preventSubmit);
 
