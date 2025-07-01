@@ -6,6 +6,7 @@ use App\Controllers\PDFController;
 use App\Controllers\UnidadController;
 use App\Controllers\EquipoController;
 use App\Controllers\AdminParticipantesController;
+use App\Controllers\CalendarController;
 
 require_once __DIR__ . '/config/app.php';
 class Dispatcher
@@ -38,6 +39,10 @@ class Dispatcher
 
         if ($route === '/participante/editar' && $method === 'POST') {
             return (new AlumnoController)->updateProfile();
+        }
+
+        if ($route === '/api/calendar' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+            return (new CalendarController)->events();
         }
 
         if ($route === '/participante' && $method === 'GET') {

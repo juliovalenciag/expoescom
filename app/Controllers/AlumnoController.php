@@ -275,6 +275,7 @@ SELECT
       a.correo,
       a.semestre,
       a.carrera,
+      e.id            AS equipo_id, 
       e.nombre_equipo,
       e.nombre_proyecto,
       e.es_ganador,
@@ -290,7 +291,18 @@ SELECT
     WHERE a.boleta = ?
 ");
         $stmt->execute([$boleta]);
-        $info = $stmt->fetch(\PDO::FETCH_ASSOC); // <-- importante para acceder con claves string
+        $info = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        $stmt = $this->pdo->prepare("
+      SELECT 
+        a.boleta, a.nombre, a.apellido_paterno, a.apellido_materno, a.semestre, a.carrera
+      FROM miembros_equipo me
+      JOIN alumnos a ON a.boleta = me.alumno_boleta
+      WHERE me.equipo_id = ?
+      ORDER BY a.apellido_paterno, a.nombre
+    ");
+        $stmt->execute([$info['equipo_id']]);
+        $miembros = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         include __DIR__ . '/../Views/participante/dashboard.php';
     }

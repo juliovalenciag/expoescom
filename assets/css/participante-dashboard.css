@@ -80,9 +80,9 @@ body.participante-dashboard {
 }
 .title {
   text-align: center;
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   color: var(--primary);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 /* Alerts */
@@ -320,6 +320,109 @@ body.participante-dashboard {
   margin-top: 1rem;
 }
 
+.members-card h2 {
+  font-size: 1.3rem;
+  color: var(--primary);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.members-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.members-list li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+}
+.members-list li:last-child {
+  border-bottom: none;
+}
+
+/* — Calendario — */
+.calendar-card {
+  grid-column: span 2;
+  padding: 1rem; /* Reducimos padding interno */
+}
+
+.calendar-card h2 {
+  font-size: 1.3rem;
+  color: var(--primary);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#calendar {
+  width: 100%; /* Ocupa todo el espacio disponible */
+  margin: 0 auto;
+  font-size: 0.75rem; /* Texto un poco más pequeño */
+  line-height: 1.2; /* Menos separación vertical */
+}
+
+/* Toolbar más compacta */
+.calendar-card .fc-toolbar-title {
+  font-size: 1rem; /* Titular más pequeño */
+  margin-bottom: 0.2rem;
+}
+.calendar-card .fc .fc-button {
+  font-size: 0.7rem; /* Botones más pequeños */
+  padding: 0.2rem 0.4rem; /* Menos relleno */
+  margin: 0 0.1rem; /* Separación mínima */
+}
+
+/* Celdas de día más apretadas */
+.calendar-card .fc td,
+.calendar-card .fc th {
+  padding: 0.3rem; /* Menos relleno */
+}
+
+/* Altura fija y scroll interno (si hay muchos eventos) */
+.calendar-card .fc-daygrid-body {
+  max-height: 400px; /* Ajusta según necesidades */
+  overflow-y: auto;
+}
+
+/* Colores consistentes */
+.calendar-card .fc .fc-button,
+.calendar-card .fc .fc-button.fc-button-primary {
+  background: var(--primary);
+  color: var(--white);
+}
+.calendar-card .fc .fc-button:hover {
+  background: var(--primary-light);
+}
+
+/* Hoy destacado */
+.calendar-card .fc-day-today {
+  background-color: rgba(11, 61, 145, 0.15);
+}
+
+/* Meses ajenos menos notorios */
+.calendar-card .fc-daygrid-day.fc-day-other {
+  color: #bbb;
+}
+
+/* Mobile: simplificar vista */
+@media (max-width: 767px) {
+  #calendar {
+    font-size: 0.65rem;
+  }
+  .calendar-card .fc-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+  }
+  .calendar-card .fc .fc-button {
+    flex: 1 1 30%;
+  }
+}
+
 /* Responsive tweaks */
 @media (max-width: 767px) {
   .grid-dashboard {
@@ -327,5 +430,8 @@ body.participante-dashboard {
   }
   .field.full {
     grid-column: 1;
+  }
+  .calendar-card {
+    grid-column: span 1;
   }
 }
