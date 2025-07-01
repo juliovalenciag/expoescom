@@ -180,7 +180,6 @@ body.participante-dashboard {
 .correo-wrap {
   display: flex;
   align-items: center;
-
 }
 .correo-wrap input {
   flex: 1;
@@ -299,6 +298,24 @@ body.participante-dashboard {
 
 .btn-action:hover {
   background: var(--action-bg-hover);
+}
+
+.btn-pdf1 {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  gap: 0.5rem;
+  padding: 0.8rem 1.4rem;
+  background: var(--primary);
+  color: #fff;
+  border: 2px solid var(--primary);
+  border-radius: var(--radius);
+  font-weight: 600;
+  transition: background var(--transition), color var(--transition);
+}
+.btn-pdf1:hover {
+  background: var(--white);
+  color: var(--primary);
 }
 
 .btn-pdf {

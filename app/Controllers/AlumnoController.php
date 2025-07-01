@@ -218,9 +218,29 @@ class AlumnoController
 
             // 3.4. Asignar salón/horario automáticamente
             try {
-                $horarioId = $data['horario'] === 'Matutino' ? 1 : 2;
-                $salon = (new AsignacionController)
-                    ->asignarSalon($equipoId, $horarioId);
+                $stmt = $this->pdo->prepare("SELECT 1 FROM asignaciones WHERE equipo_id = ?");
+                $stmt->execute([$equipoId]);
+                if (!$stmt->fetch()) {
+                    try {
+                        $horarioId = $data['horario'] === 'Matutino' ? 1 : 2;
+                        $salon = (new AsignacionController)
+                            ->asignarSalon($equipoId, $horarioId);
+                    } catch (\Exception $e) {
+                        $this->pdo->rollBack();
+                        $errors[] = $e->getMessage();
+                        $_SESSION['errors'] = $errors;
+                        $_SESSION['old'] = $data;
+                        header('Location: ' . BASE_PATH . '/register');
+                        exit;
+                    }
+                } else {
+                    // El equipo ya tenía salón asignado: podemos recuperar su salón
+                    $stmt2 = $this->pdo->prepare("
+        SELECT salon_id FROM asignaciones WHERE equipo_id = ?
+    ");
+                    $stmt2->execute([$equipoId]);
+                    $salon = $stmt2->fetchColumn();
+                }
             } catch (\Exception $e) {
                 // si no hay salones disponibles
                 $this->pdo->rollBack();
@@ -265,30 +285,34 @@ class AlumnoController
         }
 
         $stmt = $this->pdo->prepare("
-SELECT
-      a.boleta,
-      a.nombre,
-      a.apellido_paterno,
-      a.apellido_materno,
-      a.genero,
-      a.telefono,
-      a.correo,
-      a.semestre,
-      a.carrera,
-      e.id            AS equipo_id, 
-      e.nombre_equipo,
-      e.nombre_proyecto,
-      e.es_ganador,
-      s.salon_id,
-      s.hora_inicio,
-      s.hora_fin,
-      hb.tipo AS bloque
-    FROM alumnos a
-    JOIN miembros_equipo me ON me.alumno_boleta = a.boleta
-    JOIN equipos e ON e.id = me.equipo_id
-    LEFT JOIN asignaciones s ON s.equipo_id = e.id
-    LEFT JOIN horarios_bloques hb ON hb.id = s.horario_id
-    WHERE a.boleta = ?
+        SELECT
+            a.boleta,
+            a.nombre,
+            a.apellido_paterno,
+            a.apellido_materno,
+            a.genero,
+            a.telefono,
+            a.correo,
+            a.semestre,
+            a.carrera,
+            e.id            AS equipo_id, 
+            e.nombre_equipo,
+            e.nombre_proyecto,
+            e.es_ganador,
+            s.salon_id,
+            s.hora_inicio,
+            s.hora_fin,
+            hb.tipo AS bloque,
+            ac.nombre AS academia,
+            ua.nombre AS unidad
+        FROM alumnos a
+        JOIN miembros_equipo me   ON me.alumno_boleta = a.boleta
+        JOIN equipos e            ON e.id              = me.equipo_id
+        LEFT JOIN asignaciones s  ON s.equipo_id       = e.id
+        LEFT JOIN horarios_bloques hb ON hb.id         = s.horario_id
+        JOIN academias ac         ON ac.id             = e.academia_id
+        JOIN unidades_aprendizaje ua ON ua.id          = me.unidad_id
+        WHERE a.boleta = ?
 ");
         $stmt->execute([$boleta]);
         $info = $stmt->fetch(\PDO::FETCH_ASSOC);

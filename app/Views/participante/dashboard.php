@@ -37,7 +37,7 @@
           <a href="/expoescom/pdf/acuse/<?= $info['boleta'] ?>" class="btn-pdf"><i class="fa-solid fa-file-pdf"></i>
             Descargar Acuse</a>
           <?php if ($info['es_ganador']): ?>
-            <a href="/expoescom/pdf/diploma/<?= $info['boleta'] ?>" class="btn-action"><i class="fa-solid fa-award"></i>
+            <a href="/expoescom/pdf/diploma/<?= $info['boleta'] ?>" class="btn-pdf1"><i class="fa-solid fa-award"></i>
               Descargar Diploma</a>
           <?php endif; ?>
         <?php endif; ?>
@@ -130,6 +130,8 @@
         <!-- CONCURSO -->
         <section class="card info-card">
           <h2><i class="fa-solid fa-lightbulb"></i> Concurso</h2>
+          <p><strong>Academia:</strong> <?= htmlspecialchars($info['academia']) ?></p>
+          <p><strong>Unidad:</strong> <?= htmlspecialchars($info['unidad']) ?></p>
           <p><strong>Equipo:</strong> <?= htmlspecialchars($info['nombre_equipo']) ?></p>
           <p><strong>Proyecto:</strong> <?= htmlspecialchars($info['nombre_proyecto']) ?></p>
           <p><strong>Horario:</strong> <?= date('H:i', strtotime($info['hora_inicio'])) ?> –
