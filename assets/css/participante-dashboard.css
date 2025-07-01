@@ -177,6 +177,33 @@ body.participante-dashboard {
 .field.full {
   grid-column: span 2;
 }
+.correo-wrap {
+  display: flex;
+  align-items: center;
+
+}
+.correo-wrap input {
+  flex: 1;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.correo-sufijo {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.75rem;
+  background: #e9ecef;
+  border: 1px solid #ced4da;
+  border-left: none;
+  border-top-right-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
+  font-size: 0.95rem;
+  color: #495057;
+}
+.correo-sufijo input:disabled {
+  background: #f5f7fb;
+  color: #666;
+}
+
 .field label {
   font-weight: 600;
   margin-bottom: 0.3rem;

@@ -68,13 +68,16 @@
           <form id="profileForm" action="/expoescom/participante/editar" method="POST">
             <div class="perfil-grid">
               <div class="field"><label>Boleta</label><input name="boleta"
-                  value="<?= htmlspecialchars($info['boleta']) ?>" disabled></div>
-              <div class="field"><label>Nombre</label><input name="nombre"
-                  value="<?= htmlspecialchars($info['nombre']) ?>" disabled></div>
-              <div class="field"><label>Ap. Paterno</label><input name="apellido_paterno"
-                  value="<?= htmlspecialchars($info['apellido_paterno']) ?>" disabled></div>
-              <div class="field"><label>Ap. Materno</label><input name="apellido_materno"
-                  value="<?= htmlspecialchars($info['apellido_materno']) ?>" disabled></div>
+                  value="<?= htmlspecialchars($info['boleta']) ?>" readonly></div>
+              <div class="field"><label>Nombre</label><input type="text" name="nombre"
+                  value="<?= htmlspecialchars($info['nombre']) ?>" disabled required pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ ]+">
+              </div>
+              <div class="field"><label>Ap. Paterno</label> <input type="text" name="apellido_paterno"
+                  value="<?= htmlspecialchars($info['apellido_paterno']) ?>" disabled required
+                  pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ ]+"></div>
+              <div class="field"><label>Ap. Materno</label> <input type="text" name="apellido_materno"
+                  value="<?= htmlspecialchars($info['apellido_materno']) ?>" disabled required
+                  pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ ]+"></div>
               <div class="field"><label>Género</label>
                 <select name="genero" disabled>
                   <?php foreach (['Mujer', 'Hombre', 'Otro'] as $g): ?>
@@ -82,10 +85,19 @@
                   <?php endforeach; ?>
                 </select>
               </div>
-              <div class="field"><label>Teléfono</label><input name="telefono"
-                  value="<?= htmlspecialchars($info['telefono']) ?>" disabled></div>
-              <div class="field full"><label>Correo</label><input type="email" name="correo"
-                  value="<?= htmlspecialchars($info['correo']) ?>" disabled></div>
+              <div class="field"><label>Teléfono</label><input type="tel" name="telefono"
+                  value="<?= htmlspecialchars($info['telefono']) ?>" disabled required pattern="\d{10}"></div>
+              <div class="field full email-group">
+                <label>Correo institucional</label>
+                <div class="correo-wrap">
+                  <!-- input para la parte local -->
+                  <input type="text" id="correo_local" name="correo_local" pattern="[A-Za-z0-9._-]{2,30}"
+                    title="Sólo letras, números, puntos, guiones y guión bajo" placeholder="tu_usuario"
+                    value="<?= htmlspecialchars(explode('@', $info['correo'])[0]) ?>" disabled required />
+                  <!-- sufijo fijo -->
+                  <span class="correo-sufijo">@alumno.ipn.mx</span>
+                </div>
+              </div>
 
               <!-- Contraseñas sólo en edición -->
               <div id="pwd1" class="field full hidden">

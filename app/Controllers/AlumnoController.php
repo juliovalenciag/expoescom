@@ -319,104 +319,140 @@ SELECT
         }
 
         // 1) Captura y sanea todo
-        $fields = [
-            'nombre',
-            'apellido_paterno',
-            'apellido_materno',
-            'genero',
-            'telefono',
-            'correo',
-            'current_password',
-            'new_password',
-            'confirm_password'
-        ];
-        foreach ($fields as $f) {
-            $$f = trim($_POST[$f] ?? '');
-        }
+        $nombre = trim($_POST['nombre'] ?? '');
+        $apellido_paterno = trim($_POST['apellido_paterno'] ?? '');
+        $apellido_materno = trim($_POST['apellido_materno'] ?? '');
+        $genero = $_POST['genero'] ?? '';
+        $telefono = trim($_POST['telefono'] ?? '');
+        $correo = trim($_POST['correo'] ?? '');
+        $currentPassword = $_POST['current_password'] ?? '';
+        $newPassword = $_POST['new_password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
 
         $errors = [];
 
-        // Validaciones básicas
-        if ($nombre === '' || $apellido_paterno === '' || $apellido_materno === '') {
-            $errors[] = 'Nombre y apellidos son obligatorios.';
+        $regexName = '/^[A-Za-zÁÉÍÓÚÑáéíóúñ ]+$/u';
+        if ($nombre === '' || !preg_match($regexName, $nombre)) {
+            $errors[] = 'Nombre inválido (solo letras y espacios).';
         }
-        if (!in_array($genero, ['Mujer', 'Hombre', 'Otro'])) {
-            $errors[] = 'Género inválido.';
+        if ($apellido_paterno === '' || !preg_match($regexName, $apellido_paterno)) {
+            $errors[] = 'Apellido paterno inválido.';
         }
+        if ($apellido_materno === '' || !preg_match($regexName, $apellido_materno)) {
+            $errors[] = 'Apellido materno inválido.';
+        }
+
+        // 2.2 Género
+        if (!in_array($genero, ['Mujer', 'Hombre', 'Otro'], true)) {
+            $errors[] = 'Género no válido.';
+        }
+
+        // 2.3 Teléfono
         if (!preg_match('/^\d{10}$/', $telefono)) {
-            $errors[] = 'Teléfono inválido.';
-        }
-        if (
-            !filter_var($correo, FILTER_VALIDATE_EMAIL) ||
-            !str_ends_with($correo, '@alumno.ipn.mx')
-        ) {
-            $errors[] = 'Correo inválido.';
-        }
-        // unicidad correo
-        $stmt = $this->pdo->prepare("SELECT 1 FROM alumnos WHERE correo = ? AND boleta <> ?");
-        $stmt->execute([$correo, $boleta]);
-        if ($stmt->fetch()) {
-            $errors[] = 'Correo ya en uso.';
+            $errors[] = 'Teléfono inválido (debe tener 10 dígitos).';
         }
 
-        // Si cambian contraseña
-        if ($new_password !== '' || $confirm_password !== '' || $current_password !== '') {
-            // 1) trae hash actual
-            $stmt = $this->pdo->prepare("SELECT password FROM alumnos WHERE boleta = ?");
-            $stmt->execute([$boleta]);
-            $hash = $stmt->fetchColumn();
-            if (!password_verify($current_password, $hash)) {
-                $errors[] = 'Contraseña actual incorrecta.';
+        // 2.4 Correo institucional (parte local + sufijo fijo)
+        $correo_local = trim($_POST['correo_local'] ?? '');
+        // Comprueba que la parte local cumpla el patrón (2–30 car., letras, dígitos, punto, guión, guión bajo)
+        if (!preg_match('/^[A-Za-z0-9._-]{2,30}$/', $correo_local)) {
+            $errors[] = 'La parte de usuario del correo es inválida.';
+        } else {
+            // Reconstruye el correo completo
+            $correo = $correo_local . '@alumno.ipn.mx';
+
+            // Unicidad de correo (excluyendo este mismo alumno)
+            $stmt = $this->pdo->prepare(
+                "SELECT 1 FROM alumnos WHERE correo = ? AND boleta <> ?"
+            );
+            $stmt->execute([$correo, $boleta]);
+            if ($stmt->fetch()) {
+                $errors[] = 'Ese correo ya está en uso.';
             }
-            if (
-                $new_password === '' || strlen($new_password) < 8 ||
-                !preg_match('/[A-Z]/', $new_password) ||
-                !preg_match('/\d/', $new_password) ||
-                !preg_match('/\W/', $new_password)
-            ) {
-                $errors[] = 'La nueva contraseña no cumple requisitos.';
-            }
-            if ($new_password !== $confirm_password) {
-                $errors[] = 'Las contraseñas nuevas no coinciden.';
-            }
-            $newHash = password_hash($new_password, PASSWORD_BCRYPT);
         }
 
-        if ($errors) {
+        // 2.5 Contraseña (opcional)
+        $changePwd = ($currentPassword !== '' || $newPassword !== '' || $confirmPassword !== '');
+        if ($changePwd) {
+            // Todos deben estar presentes
+            if ($currentPassword === '' || $newPassword === '' || $confirmPassword === '') {
+                $errors[] = 'Para cambiar contraseña, completa los 3 campos.';
+            } else {
+                // Verificar actual
+                $stmt = $this->pdo->prepare(
+                    "SELECT password FROM alumnos WHERE boleta = ?"
+                );
+                $stmt->execute([$boleta]);
+                $row = $stmt->fetch();
+                if (!$row || !password_verify($currentPassword, $row['password'])) {
+                    $errors[] = 'Contraseña actual incorrecta.';
+                }
+                // Complejidad nueva contraseña
+                if (
+                    strlen($newPassword) < 8 ||
+                    !preg_match('/[A-Z]/', $newPassword) ||
+                    !preg_match('/\d/', $newPassword) ||
+                    !preg_match('/\W/', $newPassword)
+                ) {
+                    $errors[] = 'La nueva contraseña debe tener al menos 8 caracteres, 1 may., 1 díg. y 1 especial.';
+                }
+                if ($newPassword !== $confirmPassword) {
+                    $errors[] = 'La nueva contraseña y su confirmación no coinciden.';
+                }
+            }
+        }
+
+        // 3) Si hay errores, redirect con mensajes
+        if (!empty($errors)) {
             $_SESSION['errors_profile'] = $errors;
             header('Location:' . BASE_PATH . '/participante');
             exit;
         }
 
-        // 2) Update transaccional
         $this->pdo->beginTransaction();
-        // datos básicos
-        $stmt = $this->pdo->prepare("
-      UPDATE alumnos
-         SET nombre=?, apellido_paterno=?, apellido_materno=?,
-             genero=?, telefono=?, correo=?
-       WHERE boleta=?
-    ");
-        $stmt->execute([
-            $nombre,
-            $apellido_paterno,
-            $apellido_materno,
-            $genero,
-            $telefono,
-            $correo,
-            $boleta
-        ]);
-        if (isset($newHash)) {
-            $stmt = $this->pdo->prepare("UPDATE alumnos SET password = ? WHERE boleta = ?");
-            $stmt->execute([$newHash, $boleta]);
+        try {
+            // 4.1 Actualizar datos básicos
+            $stmt = $this->pdo->prepare("
+                UPDATE alumnos
+                   SET nombre = ?, 
+                       apellido_paterno = ?, 
+                       apellido_materno = ?,
+                       genero = ?, 
+                       telefono = ?, 
+                       correo = ?
+                 WHERE boleta = ?
+            ");
+            $stmt->execute([
+                $nombre,
+                $apellido_paterno,
+                $apellido_materno,
+                $genero,
+                $telefono,
+                $correo,
+                $boleta
+            ]);
+
+            // 4.2 Actualizar contraseña si aplica
+            if ($changePwd) {
+                $hashPwd = password_hash($newPassword, PASSWORD_BCRYPT);
+                $stmt = $this->pdo->prepare("
+                    UPDATE alumnos
+                       SET password = ?
+                     WHERE boleta = ?
+                ");
+                $stmt->execute([$hashPwd, $boleta]);
+            }
+
+            $this->pdo->commit();
+            $_SESSION['success_profile'] = 'Perfil actualizado correctamente.';
+            header('Location:' . BASE_PATH . '/participante');
+            exit;
+
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            $_SESSION['errors_profile'] = ['Error al guardar cambios: ' . $e->getMessage()];
+            header('Location:' . BASE_PATH . '/participante');
+            exit;
         }
-        $this->pdo->commit();
-
-        $_SESSION['success_profile'] = 'Perfil actualizado correctamente.';
-        header('Location:' . BASE_PATH . '/participante');
-        exit;
     }
-
-
-
 }
