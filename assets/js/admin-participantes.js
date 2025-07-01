@@ -1,200 +1,101 @@
+// assets/js/admin-participantes.js
 document.addEventListener("DOMContentLoaded", () => {
-  const tabla = document.querySelector("#participantsTable tbody");
+  const modal = document.getElementById("partModal");
+  const form = document.getElementById("partForm");
+  const nuevoBtn = document.getElementById("nuevoPartBtn");
+  const cancelBtn = document.getElementById("partCancel");
+  const tbody = document.querySelector("table.data-table tbody");
+  let editingBoleta = null;
 
-  // Filtro en tiempo real
-  document.getElementById("searchBox").addEventListener("input", function () {
-    const filtro = this.value.toLowerCase();
-    tabla.querySelectorAll("tr").forEach((tr) => {
-      const texto = tr.textContent.toLowerCase();
-      tr.style.display = texto.includes(filtro) ? "" : "none";
-    });
+  nuevoBtn.addEventListener("click", () => {
+    editingBoleta = null;
+    form.reset();
+    document.getElementById("modalTitle").textContent = "Nuevo Participante";
+    form.partBoleta.disabled = false;
+    modal.hidden = false;
+  });
+  cancelBtn.addEventListener("click", () => (modal.hidden = true));
+
+  tbody.addEventListener("click", (e) => {
+    const tr = e.target.closest("tr");
+    if (!tr) return;
+    const boleta = tr.dataset.boleta;
+
+    // EDITAR
+    if (e.target.closest(".btn-edit")) {
+      editingBoleta = boleta;
+      document.getElementById("modalTitle").textContent = "Editar Participante";
+      form.partBoleta.value = boleta;
+      form.partNombre.value = tr.children[1].textContent;
+      const apellidos = tr.children[2].textContent.split(" ");
+      form.partApellidoP.value = apellidos[0] || "";
+      form.partApellidoM.value = apellidos[1] || "";
+      form.partGenero.value = tr.children[5].textContent;
+      form.partTelefono.value = tr.children[4].textContent;
+      form.partSemestre.value = tr.children[6].textContent;
+      form.partCarrera.value = tr.children[7].textContent;
+      form.partCorreoLocal.value = tr.children[3].textContent.split("@")[0];
+      form.partBoleta.disabled = true;
+      form.partPassword.value = "";
+      modal.hidden = false;
+    }
+
+    // ELIMINAR
+    if (e.target.closest(".btn-delete")) {
+      if (!confirm("Eliminar participante?")) return;
+      fetch(`/expoescom/admin/api/participantes/${boleta}`, {
+        method: "DELETE",
+      })
+        .then((r) => r.json())
+        .then((js) => {
+          if (js.success) tr.remove();
+          else alert(js.error);
+        });
+    }
+
+    // TOGGLE GANADOR
+    if (e.target.closest(".btn-toggle")) {
+      fetch(`/expoescom/admin/api/participantes/${boleta}/ganador`, {
+        method: "POST",
+      })
+        .then((r) => r.json())
+        .then((js) => {
+          if (js.success) location.reload();
+          else alert(js.error);
+        });
+    }
   });
 
-  // Añadir Participante (modal)
-  document
-    .querySelector(".btn-action.btn-new")
-    ?.addEventListener("click", (e) => {
-      e.preventDefault();
-      abrirModal("modalCrear");
-      document.getElementById("formCrear").reset();
-    });
+  form.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const data = {
+      boleta: form.partBoleta.value.trim(),
+      nombre: form.partNombre.value.trim(),
+      apellido_paterno: form.partApellidoP.value.trim(),
+      apellido_materno: form.partApellidoM.value.trim(),
+      genero: form.partGenero.value,
+      telefono: form.partTelefono.value.trim(),
+      semestre: form.partSemestre.value,
+      carrera: form.partCarrera.value,
+      correo: form.partCorreoLocal.value.trim() + "@alumno.ipn.mx",
+    };
+    if (form.partPassword.value) {
+      data.password = form.partPassword.value;
+    }
+    const url = editingBoleta
+      ? `/expoescom/admin/api/participantes/${editingBoleta}`
+      : "/expoescom/admin/api/participantes";
+    const method = editingBoleta ? "PUT" : "POST";
 
-  // Botón eliminar
-  document.querySelectorAll(".btn-delete").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const boleta = btn.dataset.boleta;
-      Swal.fire({
-        icon: "warning",
-        title: "¿Eliminar participante?",
-        text: `Esta acción eliminará al participante con boleta ${boleta}`,
-        showCancelButton: true,
-        confirmButtonText: "Sí, eliminar",
-        cancelButtonText: "Cancelar",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          fetch(`/expoescom/admin/api/participantes/${boleta}`, {
-            method: "DELETE",
-          }).then(() => location.reload());
-        }
+    fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+      .then((r) => r.json())
+      .then((js) => {
+        if (js.success) location.reload();
+        else alert(js.error);
       });
-    });
   });
-
-  // Botón editar (cargar datos y mostrar modal)
-  tabla.querySelectorAll(".btn-edit").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const boleta = btn.dataset.boleta;
-      const row = btn.closest("tr");
-      const celdas = row.querySelectorAll("td");
-
-      // Prellenar el modal con datos
-      const form = document.getElementById("formEditar");
-      form.boleta_original.value = boleta;
-      form.boleta.value = celdas[0].textContent.trim();
-      form.nombre.value = celdas[1].textContent.split(" ")[0];
-      form.apellido_paterno.value = celdas[1].textContent.split(" ")[1];
-      form.apellido_materno.value = celdas[1].textContent.split(" ")[2];
-      form.nombre.disabled = false;
-      form.correo.value = celdas[4].textContent.trim();
-      form.telefono.value = celdas[7].textContent.trim();
-      form.semestre.value = celdas[6].textContent.trim();
-      form.carrera.value = celdas[5].textContent.trim();
-
-      abrirModal("modalEditar");
-    });
-  });
-
-  // Botón ganador
-  tabla.querySelectorAll(".btn-toggle-winner").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const boleta = btn.dataset.boleta;
-      const res = await fetch(
-        `/expoescom/admin/api/participantes/${boleta}/ganador`,
-        {
-          method: "POST",
-        }
-      );
-      if (res.ok) location.reload();
-    });
-  });
-
-  document
-    .querySelectorAll("#formCrear input, #formCrear select")
-    .forEach((input) => {
-      input.addEventListener("input", () => {
-        if (input.value.trim() !== "") {
-          input.classList.remove("input-error");
-        }
-      });
-    });
-
-  function marcarError(input, mensaje = "") {
-    input.classList.add("input-error");
-    if (mensaje) {
-      input.setCustomValidity(mensaje);
-    } else {
-      input.setCustomValidity("");
-    }
-  }
-
-  function limpiarError(input) {
-    input.classList.remove("input-error");
-    input.setCustomValidity("");
-  }
-  // Formulario Crear
-  document.getElementById("formCrear").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const form = e.target;
-    const formData = new FormData(form);
-    let hasError = false;
-
-    // Validar campos requeridos
-    [
-      "boleta",
-      "nombre",
-      "apellido_paterno",
-      "apellido_materno",
-      "curp", 
-      "correo",
-      "telefono",
-      "semestre",
-      "carrera",
-      "genero",
-      "password",
-    ].forEach((field) => {
-      const input = form.querySelector(`[name="${field}"]`);
-      if (!formData.get(field).trim()) {
-        input.classList.add("input-error");
-        hasError = true;
-      }
-    });
-
-    if (hasError) {
-      alert("Por favor llena todos los campos obligatorios.");
-      return;
-    }
-
-    // Enviar a la API
-    const json = Object.fromEntries(formData.entries());
-    const res = await fetch("/expoescom/admin/api/participantes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(json),
-    });
-
-    if (res.ok) {
-      cerrarModal("modalCrear");
-      location.reload();
-    } else {
-      const error = await res.json();
-      console.error("Error en servidor:", error);
-      alert("Error al crear participante: " + (error?.error || "desconocido"));
-    }
-  });
-
-  // Formulario Editar
-  document
-    .getElementById("formEditar")
-    .addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
-      const boleta = data.boleta_original;
-      delete data.boleta_original;
-      const { password, ...dataToSend } = data;
-      if (password && password.trim().length >= 6) {
-        dataToSend.password = password.trim();
-      }
-
-      try {
-        const res = await fetch(
-          `/expoescom/admin/api/participantes/${boleta}`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dataToSend),
-          }
-        );
-
-        if (!res.ok) throw new Error("Error al actualizar");
-        Swal.fire(
-          "Actualizado",
-          "Los datos han sido modificados",
-          "success"
-        ).then(() => location.reload());
-      } catch (err) {
-        Swal.fire("Error", err.message, "error");
-      }
-    });
 });
-
-// Utilidades modales
-function abrirModal(id) {
-  document.getElementById(id).classList.add("active");
-}
-function cerrarModal(id) {
-  document.getElementById(id).classList.remove("active");
-}

@@ -134,8 +134,12 @@ class AuthController
         $errors = [];
         $old = ['usuario' => $usuario];
 
+        // Validaciones server-side
         if ($usuario === '' || $password === '') {
             $errors[] = 'Ambos campos son obligatorios.';
+        }
+        if (!preg_match('/^[a-zA-Z0-9_]{4,30}$/', $usuario)) {
+            $errors[] = 'Usuario inválido.';
         }
 
         if (empty($errors)) {
@@ -145,7 +149,6 @@ class AuthController
             $admin = $stmt->fetch();
 
             if ($admin && password_verify($password, $admin['password'])) {
-                // Credenciales correctas
                 session_regenerate_id(true);
                 $_SESSION['is_admin'] = true;
                 $_SESSION['admin_id'] = $admin['id'];
@@ -161,7 +164,6 @@ class AuthController
         header('Location:' . BASE_PATH . '/login/admin');
         exit;
     }
-
 
     public function logout()
     {

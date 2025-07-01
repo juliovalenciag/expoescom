@@ -19,12 +19,14 @@ $unidadesPorAcademia = $_SESSION['unidadesPorAcademia'] ?? [];
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Participantes · Panel Admin · ExpoEscom</title>
-  k
+  <link rel="icon" href="/expoescom/assets/images/favicon.ico" />
+
   <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
   <link href="https://fonts.googleapis.com/css?family=Nunito:400,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/expoescom/assets/css/admin-dashboard.css" />
   <link rel="stylesheet" href="/expoescom/assets/css/admin-participantes.css" />
   <script defer src="/expoescom/assets/js/admin-participantes.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="admin-participantes">
@@ -58,14 +60,12 @@ $unidadesPorAcademia = $_SESSION['unidadesPorAcademia'] ?? [];
     <h1 class="dashboard-title">Participantes Registrados</h1>
 
     <div class="actions-bar">
-      <button id="btnNew" class="btn-action btn-new">
-        <i class="fa-solid fa-plus"></i> Nuevo Participante
-      </button>
+      <a href="/expoescom/admin/participantes/nuevo" class="btn-action btn-new">
+        <i class="fa-solid fa-plus"></i> Añadir Participante
+      </a>
+
       <div class="filters">
-        <input type="text" id="searchBox" placeholder="🔍 Buscar…" />
-        <label class="toggle-winners">
-          <input type="checkbox" id="winnerFilter" /> Sólo ganadores
-        </label>
+        <input type="text" id="searchBox" placeholder="Buscar por boleta, nombre, equipo o proyecto..." />
       </div>
     </div>
 
@@ -74,190 +74,185 @@ $unidadesPorAcademia = $_SESSION['unidadesPorAcademia'] ?? [];
         <thead>
           <tr>
             <th>Boleta</th>
-            <th>Nombre</th>
-            <th>Carrera</th>
-            <th>Correo</th>
-            <th>Equipo</th>
+            <th>Nombre Completo</th>
             <th>Proyecto</th>
-            <th>Salón</th>
-            <th>Bloque</th>
+            <th>Equipo</th>
+            <th>Correo</th>
+            <th>Carrera</th>
+            <th>Semestre</th>
+            <th>Teléfono</th>
             <th>Ganador</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td colspan="10" class="loading">—</td>
-          </tr>
+          <?php foreach ($participantes as $p): ?>
+            <tr>
+              <td><?= htmlspecialchars($p['boleta']) ?></td>
+              <td><?= htmlspecialchars("{$p['nombre']} {$p['apellido_paterno']} {$p['apellido_materno']}") ?></td>
+              <td><?= htmlspecialchars($p['nombre_proyecto']) ?></td>
+              <td><?= htmlspecialchars($p['nombre_equipo']) ?></td>
+              <td><?= htmlspecialchars($p['correo']) ?></td>
+              <td><?= htmlspecialchars($p['carrera']) ?></td>
+              <td><?= htmlspecialchars($p['semestre']) ?></td>
+              <td><?= htmlspecialchars($p['telefono']) ?></td>
+              <td><?= $p['es_ganador'] ? '🏆' : '—' ?></td>
+              <td class="acciones">
+                <button class="btn-edit" data-boleta="<?= $p['boleta'] ?>" title="Editar">
+                  ✏️
+                </button>
+                <button class="btn-delete" data-boleta="<?= $p['boleta'] ?>" title="Eliminar">
+                  🗑️
+                </button>
+                <button class="btn-toggle-winner <?= $p['es_ganador'] ? 'active' : '' ?>"
+                  data-boleta="<?= $p['boleta'] ?>" data-ganador="<?= $p['es_ganador'] ? '1' : '0' ?>"
+                  title="<?= $p['es_ganador'] ? 'Quitar como ganador' : 'Marcar como ganador' ?>">
+                  <?= $p['es_ganador'] ? '❌' : '🏆' ?>
+                </button>
+              </td>
+            </tr>
+          <?php endforeach; ?>
         </tbody>
       </table>
     </div>
   </main>
 
-  <!-- —— MODAL CREAR —— -->
-  <div id="modalCreate" class="modal-overlay">
+  <!-- Modal Crear Participante -->
+  <div class="modal-overlay" id="modalCrear">
     <div class="modal-dialog">
-      <header class="modal-header">
+      <div class="modal-header">
         <h2>Nuevo Participante</h2>
-        <button class="modal-close" data-close="modalCreate">&times;</button>
-      </header>
-      <form id="formCreate" class="modal-form" novalidate>
-
-        <fieldset>
-          <legend>Datos Personales</legend>
-          <div class="form-grid">
-            <!-- Boleta -->
-            <div class="field-group">
-              <label for="createBoleta">Boleta</label>
-              <input id="createBoleta" name="boleta" type="text" required pattern="^(?:\d{10}|(?:PE|PP)\d{8})$"
-                title="10 dígitos o PE/PP + 8 dígitos" />
-            </div>
-            <!-- Nombre(s) -->
-            <div class="field-group">
-              <label for="createNombre">Nombre(s)</label>
-              <input id="createNombre" name="nombre" type="text" required pattern="^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]{1,40}$"
-                title="Solo letras y espacios" />
-            </div>
-            <!-- Apellidos -->
-            <div class="field-group">
-              <label for="createApellidoP">Apellido Paterno</label>
-              <input id="createApellidoP" name="apellido_paterno" type="text" required
-                pattern="^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]{1,40}$" />
-            </div>
-            <div class="field-group">
-              <label for="createApellidoM">Apellido Materno</label>
-              <input id="createApellidoM" name="apellido_materno" type="text" required
-                pattern="^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]{1,40}$" />
-            </div>
-            <!-- Género -->
-            <div class="field-group">
-              <label for="createGenero">Género</label>
-              <select id="createGenero" name="genero" required>
-                <option value="">--</option>
-                <option value="Mujer">Mujer</option>
-                <option value="Hombre">Hombre</option>
-                <option value="Otro">Otro</option>
-              </select>
-            </div>
-            <!-- Teléfono / CURP -->
-            <div class="field-group">
-              <label for="createTelefono">Teléfono</label>
-              <input id="createTelefono" name="telefono" type="tel" required maxlength="10" pattern="^\d{10}$"
-                title="10 dígitos" />
-            </div>
-            <div class="field-group">
-              <label for="createCURP">CURP</label>
-              <input id="createCURP" name="curp" type="text" required maxlength="18"
-                pattern="^[A-ZÑ][AEIOUÑ][A-ZÑ]{2}\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[HM](AS|BC|BS|CC|CS|CH|CL|CM|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS)[B-DF-HJ-NP-TV-ZÑ]{3}[A-Z\d]\d$"
-                title="Formato CURP" />
-            </div>
-            <!-- Semestre / Carrera -->
-            <div class="field-group">
-              <label for="createSemestre">Semestre</label>
-              <select id="createSemestre" name="semestre" required>
-                <option value="">--</option>
-                <?php for ($i = 1; $i <= 8; $i++): ?>
-                  <option value="<?= $i ?>"><?= $i ?></option>
-                <?php endfor; ?>
-              </select>
-            </div>
-            <div class="field-group">
-              <label for="createCarrera">Carrera</label>
-              <select id="createCarrera" name="carrera" required>
-                <option value="">--</option>
-                <option value="ISC">ISC</option>
-                <option value="IIA">IIA</option>
-                <option value="LCD">LCD</option>
-              </select>
-            </div>
+        <button class="modal-close" onclick="cerrarModal('modalCrear')">&times;</button>
+      </div>
+      <form id="formCrear" class="modal-form">
+        <div class="form-grid">
+          <div class="field-group">
+            <label>Boleta</label>
+            <input type="text" name="boleta" required />
           </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Datos de Cuenta</legend>
-          <div class="form-grid">
-            <div class="field-group">
-              <label for="createCorreo">Correo</label>
-              <input id="createCorreo" name="correo" type="email" required pattern="^[\w.+-]+@alumno\.ipn\.mx$"
-                title="Termina en @alumno.ipn.mx" />
-            </div>
-            <div class="field-group">
-              <label for="createPassword">Contraseña</label>
-              <input id="createPassword" name="password" type="password" required minlength="6"
-                title="Mín. 6 car., 1 may., 1 dig., 1 espec." />
-            </div>
-            <div class="field-group">
-              <label for="createPassword2">Confirmar contraseña</label>
-              <input id="createPassword2" name="password2" type="password" required />
-            </div>
+          <div class="field-group">
+            <label>Nombre</label>
+            <input type="text" name="nombre" required />
           </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Datos de Concurso</legend>
-          <div class="form-grid">
-            <!-- <div class="field-group">
-              <label for="createHorario">Horario preferido</label>
-              <select id="createHorario" name="horario_preferencia" required>
-                <option value="">--</option>
-                <option value="Matutino">Matutino</option>
-                <option value="Vespertino">Vespertino</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <label for="createAcademia">Academia</label>
-              <select id="createAcademia" name="academia_id" disabled required>
-                <option value="">--</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <label for="createUnidad">Unidad</label>
-              <select id="createUnidad" name="unidad_id" disabled required>
-                <option value="">--</option>
-              </select>
-            </div> -->
-            <div class="field-group">
-              <label for="createProyecto">Proyecto</label>
-              <input id="createProyecto" name="nombre_proyecto" type="text" required minlength="3" />
-            </div>
-            <div class="field-group">
-              <label for="createEquipo">Equipo</label>
-              <input id="createEquipo" name="nombre_equipo" type="text" required minlength="3" />
-            </div>
+          <div class="field-group">
+            <label>Apellido Paterno</label>
+            <input type="text" name="apellido_paterno" required />
           </div>
-        </fieldset>
-
-        <footer class="modal-footer">
-          <button type="button" class="btn-secondary modal-close" data-close="modalCreate">Cancelar</button>
-          <button type="submit" class="btn-primary">Crear</button>
-        </footer>
-      </form>
-    </div>
-  </div>
-
-  <!-- —— MODAL EDITAR —— (igual, quita password y boleta readonly) -->
-  <div id="modalEdit" class="modal-overlay">
-    <div class="modal-dialog">
-      <header class="modal-header">
-        <h2>Editar Participante</h2>
-        <button class="modal-close" data-close="modalEdit">&times;</button>
-      </header>
-      <form id="formEdit" class="modal-form" novalidate>
-        <!-- repite exactamente los mismos fieldsets -->
-        <!-- Boleta readonly -->
-        <div class="field-group">
-          <label>Boleta</label>
-          <input name="boleta" readonly />
+          <div class="field-group">
+            <label>Apellido Materno</label>
+            <input type="text" name="apellido_materno" required />
+          </div>
+          <div class="field-group">
+            <label>CURP</label>
+            <input type="text" name="curp" required />
+          </div>
+          <div class="field-group">
+            <label>Correo</label>
+            <input type="email" name="correo" required />
+          </div>
+          <div class="field-group">
+            <label>Género</label>
+            <select name="genero" required>
+              <option value="">Selecciona</option>
+              <option value="F">Femenino</option>
+              <option value="M">Masculino</option>
+              <option value="O">Otro</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Contraseña (temporal)</label>
+            <input type="text" name="password" required placeholder="Al menos 6 caracteres" />
+          </div>
+          <div class="field-group">
+            <label>Teléfono</label>
+            <input type="text" name="telefono" maxlength="10" />
+          </div>
+          <div class="field-group">
+            <label>Semestre</label>
+            <input type="number" name="semestre" min="1" max="8" required />
+          </div>
+          <div class="field-group">
+            <label>Carrera</label>
+            <select name="carrera" required>
+              <option value="ISC">ISC</option>
+              <option value="LCD">LCD</option>
+              <option value="IIA">IIA</option>
+            </select>
+          </div>
         </div>
-        <!-- resto igual salvo password -->
-        <footer class="modal-footer">
-          <button type="button" class="btn-secondary modal-close" data-close="modalEdit">Cancelar</button>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="cerrarModal('modalCrear')">Cancelar</button>
           <button type="submit" class="btn-primary">Guardar</button>
-          <button type="button" id="btnDelete" class="btn-danger">Eliminar</button>
-        </footer>
+        </div>
       </form>
     </div>
   </div>
+
+  <!-- Modal Editar Participante -->
+  <div class="modal-overlay" id="modalEditar">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2>Editar Participante</h2>
+        <button class="modal-close" onclick="cerrarModal('modalEditar')">&times;</button>
+      </div>
+      <form id="formEditar" class="modal-form">
+        <input type="hidden" name="boleta_original" />
+        <div class="form-grid">
+          <div class="field-group">
+            <label>Boleta</label>
+            <input type="text" name="boleta" required />
+          </div>
+          <div class="field-group">
+            <label>Nombre</label>
+            <input type="text" name="nombre" required />
+          </div>
+          <div class="field-group">
+            <label>Apellido Paterno</label>
+            <input type="text" name="apellido_paterno" required />
+          </div>
+          <div class="field-group">
+            <label>Apellido Materno</label>
+            <input type="text" name="apellido_materno" required />
+          </div>
+
+
+
+
+          <div class="field-group">
+            <label>Correo</label>
+            <input type="email" name="correo" required />
+          </div>
+          <div class="field-group">
+            <label>Contraseña (solo si deseas cambiarla)</label>
+            <input type="text" name="password" placeholder="Déjalo vacío para no cambiar" />
+          </div>
+          <div class="field-group">
+            <label>Teléfono</label>
+            <input type="text" name="telefono" maxlength="10" />
+          </div>
+          <div class="field-group">
+            <label>Semestre</label>
+            <input type="number" name="semestre" min="1" max="8" required />
+          </div>
+          <div class="field-group">
+            <label>Carrera</label>
+            <select name="carrera" required>
+              <option value="ISC">ISC</option>
+              <option value="LCD">LCD</option>
+              <option value="IIA">IIA</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="cerrarModal('modalEditar')">Cancelar</button>
+          <button type="submit" class="btn-primary">Actualizar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
 
 </body>
 

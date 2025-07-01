@@ -7,6 +7,7 @@ use App\Controllers\UnidadController;
 use App\Controllers\EquipoController;
 use App\Controllers\AdminParticipantesController;
 use App\Controllers\CalendarController;
+use App\Controllers\SalonController;
 
 require_once __DIR__ . '/config/app.php';
 class Dispatcher
@@ -76,32 +77,97 @@ class Dispatcher
 
         }
 
+        if ($route === '/admin/api/participantes' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+            return (new AdminController)->apiList();
+        }
+        // Participantes admin
+        // listado
         if ($route === '/admin/participantes' && $method === 'GET') {
-            return (new AdminParticipantesController)->index();
+            return (new AdminController)->participantes();
         }
-
-        // 6.2) Marcar ganador
-        if (preg_match('#^/admin/participantes/ganador/([\w\d]+)$#', $route, $m) && $method === 'GET') {
-            return (new AdminParticipantesController)->marcarGanador($m[1]);
+        // API
+        if ($route === '/admin/api/participantes' && $method === 'GET') {
+            return (new AdminController)->apiList();
         }
-
-        // // 7) Listado de participantes
-        // if ($route === '/admin/participantes' && $method === 'GET') {
-        //     return (new AdminController)->list();
-        // }
-
-        // 8) API participantes
         if ($route === '/admin/api/participantes' && $method === 'POST') {
-            return (new AdminParticipantesController)->apiCreate();
+            return (new AdminController)->apiCreate();
         }
         if (preg_match('#^/admin/api/participantes/([\w\d]+)$#', $route, $m) && $method === 'PUT') {
-            return (new AdminParticipantesController)->apiUpdate($m[1]);
+            return (new AdminController)->apiUpdate($m[1]);
         }
         if (preg_match('#^/admin/api/participantes/([\w\d]+)$#', $route, $m) && $method === 'DELETE') {
-            return (new AdminParticipantesController)->apiDelete($m[1]);
+            return (new AdminController)->apiDelete($m[1]);
         }
         if (preg_match('#^/admin/api/participantes/([\w\d]+)/ganador$#', $route, $m) && $method === 'POST') {
-            return (new AdminParticipantesController)->marcarGanador($m[1]);
+            return (new AdminController)->apiToggleWinner($m[1]);
+        }
+
+        // Página del gestor
+
+        if ($route === '/admin/salones' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+            return (new AdminController)->salones();
+        }
+
+        // API Salones
+        if ($route === '/admin/api/salones' && $method === 'GET') {
+            return (new SalonController)->apiListSalones();
+        }
+        if ($route === '/admin/api/salones' && $method === 'POST') {
+            return (new SalonController)->apiCreateSalon();
+        }
+        if (preg_match('#^/admin/api/salones/([^/]+)$#', $route, $m) && $method === 'PUT') {
+            return (new SalonController)->apiUpdateSalon($m[1]);
+        }
+        if (preg_match('#^/admin/api/salones/([^/]+)$#', $route, $m) && $method === 'DELETE') {
+            return (new SalonController)->apiDeleteSalon($m[1]);
+        }
+
+        // API Bloques
+        if ($route === '/admin/api/bloques' && $method === 'GET') {
+            return (new SalonController)->apiListBloques();
+        }
+        if ($route === '/admin/api/bloques' && $method === 'POST') {
+            return (new SalonController)->apiCreateBloque();
+        }
+        if (preg_match('#^/admin/api/bloques/(\d+)$#', $route, $m) && $method === 'PUT') {
+            return (new SalonController)->apiUpdateBloque($m[1]);
+        }
+        if (preg_match('#^/admin/api/bloques/(\d+)$#', $route, $m) && $method === 'DELETE') {
+            return (new SalonController)->apiDeleteBloque($m[1]);
+        }
+
+        // SALONES
+        if ($route === '/admin/salones' && $method === 'GET') {
+            return (new AdminController)->salonesIndex();
+        }
+        if ($route === '/admin/salones' && $method === 'POST') {
+            return (new AdminController)->salonesStore();
+        }
+        if (preg_match('#^/admin/salones/([0-9A-Za-z]+)/edit$#', $route, $m) && $method === 'GET') {
+            return (new AdminController)->salonesEdit($m[1]);
+        }
+        if (preg_match('#^/admin/salones/([0-9A-Za-z]+)$#', $route, $m) && $method === 'POST') {
+            return (new AdminController)->salonesUpdate($m[1]);
+        }
+        if (preg_match('#^/admin/salones/([0-9A-Za-z]+)/delete$#', $route, $m) && $method === 'POST') {
+            return (new AdminController)->salonesDelete($m[1]);
+        }
+
+        // BLOQUES
+        if ($route === '/admin/bloques' && $method === 'GET') {
+            return (new AdminController)->bloquesIndex();
+        }
+        if ($route === '/admin/bloques' && $method === 'POST') {
+            return (new AdminController)->bloquesStore();
+        }
+        if (preg_match('#^/admin/bloques/(\d+)/edit$#', $route, $m) && $method === 'GET') {
+            return (new AdminController)->bloquesEdit((int) $m[1]);
+        }
+        if (preg_match('#^/admin/bloques/(\d+)$#', $route, $m) && $method === 'POST') {
+            return (new AdminController)->bloquesUpdate((int) $m[1]);
+        }
+        if (preg_match('#^/admin/bloques/(\d+)/delete$#', $route, $m) && $method === 'POST') {
+            return (new AdminController)->bloquesDelete((int) $m[1]);
         }
 
 

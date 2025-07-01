@@ -1,0 +1,132 @@
+:root {
+  --primary: #004085;
+  --bg-light: #f4f7fc;
+  --white: #fff;
+  --radius: 8px;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --text: #333;
+  --header-height: 60px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body.admin-dashboard {
+  font-family: "Nunito", sans-serif;
+  background: var(--bg-light);
+  color: var(--text);
+  padding-top: var(--header-height);
+}
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  box-shadow: 0 2px 6px var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+  height: var(--header-height);
+  z-index: 1000;
+}
+.site-header a {
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: 600;
+}
+.header-right a img {
+  height: 32px;
+  margin-left: 1rem;
+}
+.btn-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  transition: background 0.3s;
+}
+.btn-logout:hover {
+  background: var(--primary);
+  color: var(--white);
+}
+
+.dashboard-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.dashboard-title {
+  font-size: 1.8rem;
+  color: var(--primary);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.dashboard-desc {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #555;
+}
+
+.salones-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--white);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 4px 12px var(--shadow);
+}
+.salones-table thead {
+  background: var(--primary);
+  color: #fff;
+}
+.salones-table th,
+.salones-table td {
+  padding: 0.75rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+.salones-table th {
+  font-weight: 600;
+}
+.salones-table tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+/* Responsive: mostrar etiquetas en celda */
+@media (max-width: 700px) {
+  .salones-table thead {
+    display: none;
+  }
+  .salones-table,
+  .salones-table tbody,
+  .salones-table tr,
+  .salones-table td {
+    display: block;
+    width: 100%;
+  }
+  .salones-table tr {
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .salones-table td {
+    text-align: right;
+    padding: 0.75rem;
+    border-bottom: none;
+    position: relative;
+  }
+  .salones-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 1rem;
+    font-weight: 600;
+    color: var(--primary);
+  }
+}

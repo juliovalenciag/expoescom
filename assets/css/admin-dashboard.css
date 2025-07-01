@@ -1,17 +1,11 @@
-/* assets/css/admin-dashboard.css */
-
-/* 0) Variables y reset */
 :root {
   --primary: #004085;
   --primary-light: #0056b3;
-  --bg-light: #f4f7fc;
+  --bg-light: #eef3f9;
   --white: #fff;
-  --card-shadow: rgba(0, 0, 0, 0.1);
   --radius: 8px;
+  --shadow: rgba(0, 0, 0, 0.1);
   --transition: 0.3s ease;
-  --action-bg: #0056b3;
-  --action-bg-hover: #004085;
-  --action-color: #fff;
 }
 
 * {
@@ -23,16 +17,15 @@ body.admin-dashboard {
   font-family: "Nunito", sans-serif;
   background: var(--bg-light);
   color: #333;
-  padding-top: 70px; /* espacio para header */
+  padding-top: 80px;
 }
-
 .site-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   background: var(--white);
-  box-shadow: 0 2px 6px var(--card-shadow);
+  box-shadow: 0 2px 6px var(--shadow);
   z-index: 1000;
   display: flex;
   justify-content: space-between;
@@ -44,109 +37,121 @@ body.admin-dashboard {
   color: var(--primary);
   font-weight: 600;
 }
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
 .header-right img {
   height: 40px;
+  margin-left: 16px;
 }
 .btn-logout {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
   border: 1px solid var(--primary);
+  padding: 6px 12px;
   border-radius: var(--radius);
   transition: background var(--transition), color var(--transition);
 }
 .btn-logout:hover {
   background: var(--primary);
-  color: #fff;
+  color: var(--white);
 }
 
-/* 2) Contenedor principal */
 .dashboard-container {
-  max-width: 1024px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
 }
-
-/* 3) Título */
 .dashboard-title {
   text-align: center;
-  font-size: 2rem;
+  font-size: 2.2rem;
   color: var(--primary);
   margin-bottom: 2rem;
 }
 
-/* 4) Tarjetas de overview */
+/* buscador */
+.search-bar {
+  position: relative;
+  max-width: 400px;
+  margin: 0 auto 2rem;
+}
+.search-bar input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+}
+.search-bar i {
+  position: absolute;
+
+  color: #888;
+}
+
+/* overview */
 .overview {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 }
-.card {
+.overview .card {
   background: var(--white);
   border-radius: var(--radius);
-  box-shadow: 0 4px 12px var(--card-shadow);
+  box-shadow: 0 4px 12px var(--shadow);
   display: flex;
   align-items: center;
-  padding: 1.5rem;
+  padding: 1rem;
   transition: transform var(--transition);
 }
-.card:hover {
+.overview .card:hover {
   transform: translateY(-4px);
 }
-.card .icon {
-  font-size: 2.5rem;
+.overview .icon {
+  font-size: 2rem;
   color: var(--primary);
   margin-right: 1rem;
 }
-.card .info {
-  text-align: left;
-}
-.card .stat {
-  font-size: 2rem;
+.overview .info .stat {
+  font-size: 1.8rem;
   font-weight: 700;
-  margin: 0;
+  margin-bottom: 0.2rem;
 }
-.card .label {
+.overview .info .label {
   font-size: 0.9rem;
-  color: #666;
-  margin-top: 4px;
+  color: #555;
 }
 
-/* 5) Área de acciones */
-.actions {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
+/* shortcuts */
+.shortcuts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
 }
-.btn-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: var(--action-bg);
-  color: var(--action-color);
+.shortcut {
+  background: var(--primary);
+  color: var(--white);
   border-radius: var(--radius);
-  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
   text-decoration: none;
-  transition: background var(--transition);
+  transition: background var(--transition), transform var(--transition);
 }
-.btn-action i {
-  font-size: 1.1rem;
+.shortcut i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
 }
-.btn-action:hover {
-  background: var(--action-bg-hover);
+.shortcut span {
+  font-size: 0.9rem;
+}
+.shortcut:hover {
+  background: var(--primary-light);
+  transform: translateY(-3px);
 }
 
-/* 6) Responsive tweaks */
+/* responsive tweaks */
 @media (max-width: 600px) {
-  .actions {
-    flex-direction: column;
+  .overview {
+    grid-template-columns: 1fr;
+  }
+  .shortcuts {
+    grid-template-columns: 1fr;
   }
 }

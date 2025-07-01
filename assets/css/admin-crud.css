@@ -1,0 +1,141 @@
+/* admin-crud.css */
+:root {
+  --primary: #004085;
+  --primary-light: #0056b3;
+  --bg-light: #f4f7fc;
+  --white: #fff;
+  --radius: 8px;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --error: #dc3545;
+  --transition: 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body.admin-crud {
+  font-family: "Nunito", sans-serif;
+  background: var(--bg-light);
+  padding-top: 70px; /* para header */
+}
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  box-shadow: 0 2px 6px var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  z-index: 1000;
+}
+.site-header a {
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: 600;
+}
+.site-header img {
+  height: 40px;
+}
+
+.crud-container {
+  max-width: 960px;
+  margin: 2rem auto;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px var(--shadow);
+  padding: 1.5rem;
+}
+
+.crud-container h1,
+.crud-container h2 {
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.flash {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+}
+.flash.success {
+  background: #e6f4ea;
+  color: #2e7d32;
+}
+.flash.error {
+  background: #fdecea;
+  color: #b71c1c;
+}
+
+.crud-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+.crud-table th,
+.crud-table td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
+}
+.crud-table th {
+  background: var(--primary);
+  color: white;
+}
+.crud-table td.actions {
+  white-space: nowrap;
+}
+
+.btn {
+  display: inline-block;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--transition);
+  text-decoration: none;
+  color: var(--white);
+}
+.btn-edit {
+  background: var(--primary);
+}
+.btn-edit:hover {
+  background: var(--primary-light);
+}
+.btn-delete {
+  background: var(--error);
+}
+.btn-delete:hover {
+  background: darken(var(--error), 10%);
+}
+.btn-back {
+  background: #666;
+}
+.btn-back:hover {
+  background: #444;
+}
+
+.inline-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.inline-form input[type="text"],
+.inline-form input[type="number"],
+.inline-form input[type="time"] {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  flex: 1 1 120px;
+}
+.inline-form button {
+  flex: 0 0 auto;
+}
