@@ -11,12 +11,21 @@ unset($_SESSION['bloque_errors'], $_SESSION['bloque_success']);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Gestión de Bloques · Admin</title>
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/expoescom/assets/css/admin-crud.css" />
 </head>
 
 <body class="admin-crud">
     <header class="site-header">
-        <a href="/expoescom/"><i class="fa-solid fa-arrow-left"></i> Inicio</a>
+        <a href="/expoescom/admin"><i class="fa-solid fa-arrow-left"></i> Panel </a>
+        <div class="header-right">
+            <a href="https://www.ipn.mx" target="_blank"><img src="/expoescom/assets/images/IPN_Logo.png"
+                    alt="IPN" /></a>
+            <a href="https://www.escom.ipn.mx" target="_blank"><img src="/expoescom/assets/images/Escom_Logo.png"
+                    alt="ESCOM" /></a>
+            <a href="/expoescom/logout" class="btn-logout"><i class="fa-solid fa-sign-out-alt"></i> Cerrar sesión</a>
+        </div>
     </header>
     <main class="crud-container">
         <h1>Gestión de Bloques</h1>

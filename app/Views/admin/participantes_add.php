@@ -11,12 +11,21 @@ unset($_SESSION['errors_add']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Nuevo Participante · Admin ExpoESCOM</title>
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/expoescom/assets/css/admin-participantes-form.css">
 </head>
 
 <body class="admin-dashboard">
     <header class="site-header">
         <a href="/expoescom/admin/participantes"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+        <div class="header-right">
+            <a href="https://www.ipn.mx" target="_blank"><img src="/expoescom/assets/images/IPN_Logo.png"
+                    alt="IPN" /></a>
+            <a href="https://www.escom.ipn.mx" target="_blank"><img src="/expoescom/assets/images/Escom_Logo.png"
+                    alt="ESCOM" /></a>
+            
+        </div>
     </header>
     <main class="dashboard-container form-container">
         <h1>Agregar Participante</h1>
@@ -163,7 +172,7 @@ unset($_SESSION['errors_add']);
     </main>
 
     <script>
-        
+
         window.unidadesPorAcademia = <?= json_encode($unidadesPorAcademia, JSON_UNESCAPED_UNICODE) ?>;
     </script>
     <script defer src="/expoescom/assets/js/admin-participantes-add.js"></script>

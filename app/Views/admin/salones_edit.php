@@ -15,6 +15,13 @@ $salon = $salon;  // viene del controller
 <body class="admin-crud">
     <header class="site-header">
         <a href="/expoescom/admin/salones"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+        <div class="header-right">
+            <a href="https://www.ipn.mx" target="_blank"><img src="/expoescom/assets/images/IPN_Logo.png"
+                    alt="IPN" /></a>
+            <a href="https://www.escom.ipn.mx" target="_blank"><img src="/expoescom/assets/images/Escom_Logo.png"
+                    alt="ESCOM" /></a>
+
+        </div>
     </header>
     <main class="crud-container">
         <h1>Editar Salón <?= htmlspecialchars($salon['id']) ?></h1>

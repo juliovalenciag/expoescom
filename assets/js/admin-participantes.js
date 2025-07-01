@@ -1,50 +1,79 @@
-document
-  .querySelectorAll(".column-selector input[type=checkbox]")
-  .forEach((cb) => {
-    const col = cb.dataset.col;
-    const toggle = () => {
-      document
-        .querySelectorAll(`th[data-col="${col}"], td[data-col="${col}"]`)
-        .forEach((el) => (el.style.display = cb.checked ? "" : "none"));
-    };
-    cb.addEventListener("change", toggle);
-    toggle();
+document.addEventListener("DOMContentLoaded", () => {
+  // 1) Columnas dropdown toggle
+  const dd = document.querySelector(".columns-dropdown");
+  document.getElementById("columnsBtn").addEventListener("click", () => {
+    dd.classList.toggle("open");
+  });
+  // cerrar al hacer click afuera
+  document.addEventListener("click", (e) => {
+    if (!dd.contains(e.target)) dd.classList.remove("open");
   });
 
-// 2) Delete
-document.querySelectorAll(".btn-delete").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const tr = btn.closest("tr");
-    const boleta = tr.dataset.boleta;
-    if (!confirm("¿Eliminar este participante?")) return;
-    fetch(`/expoescom/admin/api/participantes/${boleta}`, { method: "DELETE" })
-      .then((r) => r.json())
-      .then((js) => {
-        if (js.success) tr.remove();
-        else alert(js.error || "Error al eliminar");
-      });
-  });
-});
+  // 2) Mostrar/ocultar columnas
+  document
+    .querySelectorAll(".columns-menu input[type=checkbox]")
+    .forEach((cb) => {
+      const col = cb.dataset.col;
+      const toggle = () => {
+        document
+          .querySelectorAll(`th[data-col="${col}"], td[data-col="${col}"]`)
+          .forEach((el) => (el.style.display = cb.checked ? "" : "none"));
+      };
+      cb.addEventListener("change", toggle);
+      toggle();
+    });
 
-// 3) Toggle ganador
-document.querySelectorAll(".btn-toggle-winner").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const tr = btn.closest("tr");
-    const boleta = tr.dataset.boleta;
-    fetch(`/expoescom/admin/api/participantes/${boleta}/ganador`, {
-      method: "POST",
-    })
-      .then((r) => r.json())
-      .then((js) => {
-        if (!js.success) return alert(js.error || "Error");
-        // actualizar celda “Ganador”
-        const cell = tr.querySelector('td[data-col="es_ganador"]');
-        const isNow = cell.textContent.trim() === "No";
-        cell.textContent = isNow ? "Sí" : "No";
-        // actualizar icono
-        const ico = btn.querySelector("i");
-        ico.classList.toggle("fa-trophy", isNow);
-        ico.classList.toggle("fa-medal", !isNow);
-      });
+  // 3) Buscador global
+  const searchInput = document.getElementById("searchInput");
+  searchInput.addEventListener("input", () => {
+    const q = searchInput.value.toLowerCase();
+    document.querySelectorAll(".data-table tbody tr").forEach((tr) => {
+      const text = Array.from(tr.querySelectorAll("td"))
+        .filter((td) => td.offsetParent !== null) // solo visibles
+        .map((td) => td.textContent.toLowerCase())
+        .join(" ");
+      tr.style.display = text.includes(q) ? "" : "none";
+    });
+  });
+
+  // 4) Eliminar participante
+  document.querySelectorAll(".btn-delete").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tr = btn.closest("tr");
+      const boleta = tr.dataset.boleta;
+      if (!confirm("¿Eliminar este participante?")) return;
+      fetch(`/expoescom/admin/api/participantes/${boleta}`, {
+        method: "DELETE",
+      })
+        .then((r) => r.json())
+        .then((js) => {
+          if (js.success) tr.remove();
+          else alert(js.error || "Error al eliminar");
+        });
+    });
+  });
+
+  // 5) Toggle ganador
+  document.querySelectorAll(".btn-toggle-winner").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tr = btn.closest("tr");
+      const boleta = tr.dataset.boleta;
+      fetch(`/expoescom/admin/api/participantes/${boleta}/ganador`, {
+        method: "POST",
+      })
+        .then((r) => r.json())
+        .then((js) => {
+          if (!js.success) return alert(js.error || "Error");
+          // actualizar icono y celda
+          const cell = tr.querySelector('td[data-col="es_ganador"]');
+          const nowWinner = !cell.querySelector("i.fa-trophy");
+          cell.innerHTML = nowWinner
+            ? '<i class="fa-solid fa-trophy"></i>'
+            : "";
+          btn.innerHTML = `<i class="fa-solid ${
+            nowWinner ? "fa-arrow-rotate-left" : "fa-trophy"
+          }"></i>`;
+        });
+    });
   });
 });
