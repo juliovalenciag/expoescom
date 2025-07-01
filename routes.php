@@ -36,6 +36,10 @@ class Dispatcher
                 : (new AuthController)->loginParticipante();
         }
 
+        if ($route === '/participante/editar' && $method === 'POST') {
+            return (new AlumnoController)->updateProfile();
+        }
+
         if ($route === '/participante' && $method === 'GET') {
             return (new AlumnoController)->dashboard();
         }

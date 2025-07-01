@@ -26,7 +26,6 @@ body.admin-dashboard {
   padding-top: 70px; /* espacio para header */
 }
 
-/* 1) Header (igual que registro.css) */
 .site-header {
   position: fixed;
   top: 0;

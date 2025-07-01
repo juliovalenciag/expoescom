@@ -295,4 +295,116 @@ SELECT
         include __DIR__ . '/../Views/participante/dashboard.php';
     }
 
+    /**
+     * Actualiza el perfil del participante.
+     */
+    public function updateProfile()
+    {
+        $boleta = $_SESSION['alumno_boleta'] ?? null;
+        if (!$boleta) {
+            header('Location:' . BASE_PATH . '/login/participante');
+            exit;
+        }
+
+        // 1) Captura y sanea todo
+        $fields = [
+            'nombre',
+            'apellido_paterno',
+            'apellido_materno',
+            'genero',
+            'telefono',
+            'correo',
+            'current_password',
+            'new_password',
+            'confirm_password'
+        ];
+        foreach ($fields as $f) {
+            $$f = trim($_POST[$f] ?? '');
+        }
+
+        $errors = [];
+
+        // Validaciones básicas
+        if ($nombre === '' || $apellido_paterno === '' || $apellido_materno === '') {
+            $errors[] = 'Nombre y apellidos son obligatorios.';
+        }
+        if (!in_array($genero, ['Mujer', 'Hombre', 'Otro'])) {
+            $errors[] = 'Género inválido.';
+        }
+        if (!preg_match('/^\d{10}$/', $telefono)) {
+            $errors[] = 'Teléfono inválido.';
+        }
+        if (
+            !filter_var($correo, FILTER_VALIDATE_EMAIL) ||
+            !str_ends_with($correo, '@alumno.ipn.mx')
+        ) {
+            $errors[] = 'Correo inválido.';
+        }
+        // unicidad correo
+        $stmt = $this->pdo->prepare("SELECT 1 FROM alumnos WHERE correo = ? AND boleta <> ?");
+        $stmt->execute([$correo, $boleta]);
+        if ($stmt->fetch()) {
+            $errors[] = 'Correo ya en uso.';
+        }
+
+        // Si cambian contraseña
+        if ($new_password !== '' || $confirm_password !== '' || $current_password !== '') {
+            // 1) trae hash actual
+            $stmt = $this->pdo->prepare("SELECT password FROM alumnos WHERE boleta = ?");
+            $stmt->execute([$boleta]);
+            $hash = $stmt->fetchColumn();
+            if (!password_verify($current_password, $hash)) {
+                $errors[] = 'Contraseña actual incorrecta.';
+            }
+            if (
+                $new_password === '' || strlen($new_password) < 8 ||
+                !preg_match('/[A-Z]/', $new_password) ||
+                !preg_match('/\d/', $new_password) ||
+                !preg_match('/\W/', $new_password)
+            ) {
+                $errors[] = 'La nueva contraseña no cumple requisitos.';
+            }
+            if ($new_password !== $confirm_password) {
+                $errors[] = 'Las contraseñas nuevas no coinciden.';
+            }
+            $newHash = password_hash($new_password, PASSWORD_BCRYPT);
+        }
+
+        if ($errors) {
+            $_SESSION['errors_profile'] = $errors;
+            header('Location:' . BASE_PATH . '/participante');
+            exit;
+        }
+
+        // 2) Update transaccional
+        $this->pdo->beginTransaction();
+        // datos básicos
+        $stmt = $this->pdo->prepare("
+      UPDATE alumnos
+         SET nombre=?, apellido_paterno=?, apellido_materno=?,
+             genero=?, telefono=?, correo=?
+       WHERE boleta=?
+    ");
+        $stmt->execute([
+            $nombre,
+            $apellido_paterno,
+            $apellido_materno,
+            $genero,
+            $telefono,
+            $correo,
+            $boleta
+        ]);
+        if (isset($newHash)) {
+            $stmt = $this->pdo->prepare("UPDATE alumnos SET password = ? WHERE boleta = ?");
+            $stmt->execute([$newHash, $boleta]);
+        }
+        $this->pdo->commit();
+
+        $_SESSION['success_profile'] = 'Perfil actualizado correctamente.';
+        header('Location:' . BASE_PATH . '/participante');
+        exit;
+    }
+
+
+
 }
