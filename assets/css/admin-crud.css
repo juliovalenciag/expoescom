@@ -19,7 +19,7 @@
 body.admin-crud {
   font-family: "Nunito", sans-serif;
   background: var(--bg-light);
-  padding-top: 70px; /* para header */
+  padding-top: 70px;
 }
 
 .site-header {

@@ -1,101 +1,50 @@
-// assets/js/admin-participantes.js
-document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("partModal");
-  const form = document.getElementById("partForm");
-  const nuevoBtn = document.getElementById("nuevoPartBtn");
-  const cancelBtn = document.getElementById("partCancel");
-  const tbody = document.querySelector("table.data-table tbody");
-  let editingBoleta = null;
-
-  nuevoBtn.addEventListener("click", () => {
-    editingBoleta = null;
-    form.reset();
-    document.getElementById("modalTitle").textContent = "Nuevo Participante";
-    form.partBoleta.disabled = false;
-    modal.hidden = false;
-  });
-  cancelBtn.addEventListener("click", () => (modal.hidden = true));
-
-  tbody.addEventListener("click", (e) => {
-    const tr = e.target.closest("tr");
-    if (!tr) return;
-    const boleta = tr.dataset.boleta;
-
-    // EDITAR
-    if (e.target.closest(".btn-edit")) {
-      editingBoleta = boleta;
-      document.getElementById("modalTitle").textContent = "Editar Participante";
-      form.partBoleta.value = boleta;
-      form.partNombre.value = tr.children[1].textContent;
-      const apellidos = tr.children[2].textContent.split(" ");
-      form.partApellidoP.value = apellidos[0] || "";
-      form.partApellidoM.value = apellidos[1] || "";
-      form.partGenero.value = tr.children[5].textContent;
-      form.partTelefono.value = tr.children[4].textContent;
-      form.partSemestre.value = tr.children[6].textContent;
-      form.partCarrera.value = tr.children[7].textContent;
-      form.partCorreoLocal.value = tr.children[3].textContent.split("@")[0];
-      form.partBoleta.disabled = true;
-      form.partPassword.value = "";
-      modal.hidden = false;
-    }
-
-    // ELIMINAR
-    if (e.target.closest(".btn-delete")) {
-      if (!confirm("Eliminar participante?")) return;
-      fetch(`/expoescom/admin/api/participantes/${boleta}`, {
-        method: "DELETE",
-      })
-        .then((r) => r.json())
-        .then((js) => {
-          if (js.success) tr.remove();
-          else alert(js.error);
-        });
-    }
-
-    // TOGGLE GANADOR
-    if (e.target.closest(".btn-toggle")) {
-      fetch(`/expoescom/admin/api/participantes/${boleta}/ganador`, {
-        method: "POST",
-      })
-        .then((r) => r.json())
-        .then((js) => {
-          if (js.success) location.reload();
-          else alert(js.error);
-        });
-    }
-  });
-
-  form.addEventListener("submit", (ev) => {
-    ev.preventDefault();
-    const data = {
-      boleta: form.partBoleta.value.trim(),
-      nombre: form.partNombre.value.trim(),
-      apellido_paterno: form.partApellidoP.value.trim(),
-      apellido_materno: form.partApellidoM.value.trim(),
-      genero: form.partGenero.value,
-      telefono: form.partTelefono.value.trim(),
-      semestre: form.partSemestre.value,
-      carrera: form.partCarrera.value,
-      correo: form.partCorreoLocal.value.trim() + "@alumno.ipn.mx",
+document
+  .querySelectorAll(".column-selector input[type=checkbox]")
+  .forEach((cb) => {
+    const col = cb.dataset.col;
+    const toggle = () => {
+      document
+        .querySelectorAll(`th[data-col="${col}"], td[data-col="${col}"]`)
+        .forEach((el) => (el.style.display = cb.checked ? "" : "none"));
     };
-    if (form.partPassword.value) {
-      data.password = form.partPassword.value;
-    }
-    const url = editingBoleta
-      ? `/expoescom/admin/api/participantes/${editingBoleta}`
-      : "/expoescom/admin/api/participantes";
-    const method = editingBoleta ? "PUT" : "POST";
+    cb.addEventListener("change", toggle);
+    toggle();
+  });
 
-    fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+// 2) Delete
+document.querySelectorAll(".btn-delete").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const tr = btn.closest("tr");
+    const boleta = tr.dataset.boleta;
+    if (!confirm("¿Eliminar este participante?")) return;
+    fetch(`/expoescom/admin/api/participantes/${boleta}`, { method: "DELETE" })
+      .then((r) => r.json())
+      .then((js) => {
+        if (js.success) tr.remove();
+        else alert(js.error || "Error al eliminar");
+      });
+  });
+});
+
+// 3) Toggle ganador
+document.querySelectorAll(".btn-toggle-winner").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const tr = btn.closest("tr");
+    const boleta = tr.dataset.boleta;
+    fetch(`/expoescom/admin/api/participantes/${boleta}/ganador`, {
+      method: "POST",
     })
       .then((r) => r.json())
       .then((js) => {
-        if (js.success) location.reload();
-        else alert(js.error);
+        if (!js.success) return alert(js.error || "Error");
+        // actualizar celda “Ganador”
+        const cell = tr.querySelector('td[data-col="es_ganador"]');
+        const isNow = cell.textContent.trim() === "No";
+        cell.textContent = isNow ? "Sí" : "No";
+        // actualizar icono
+        const ico = btn.querySelector("i");
+        ico.classList.toggle("fa-trophy", isNow);
+        ico.classList.toggle("fa-medal", !isNow);
       });
   });
 });

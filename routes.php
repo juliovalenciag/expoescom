@@ -102,6 +102,26 @@ class Dispatcher
             return (new AdminController)->apiToggleWinner($m[1]);
         }
 
+        // GET  /admin/participantes/add
+        if ($route === '/admin/participantes/add' && $method === 'GET') {
+            return (new AdminController)->showAddParticipant();
+        }
+
+        // POST /admin/participantes/add
+        if ($route === '/admin/participantes/add' && $method === 'POST') {
+            return (new AdminController)->storeParticipant();
+        }
+
+        // GET /admin/participantes/edit/{boleta}
+        if (preg_match('#^/admin/participantes/edit/([\w\d]+)$#', $route, $m) && $method === 'GET') {
+            return (new AdminController)->showEditParticipant($m[1]);
+        }
+
+        // POST /admin/participantes/edit/{boleta}
+        if (preg_match('#^/admin/participantes/edit/([\w\d]+)$#', $route, $m) && $method === 'POST') {
+            return (new AdminController)->updateParticipant($m[1]);
+        }
+
         // Página del gestor
 
         if ($route === '/admin/salones' && $_SERVER['REQUEST_METHOD'] === 'GET') {

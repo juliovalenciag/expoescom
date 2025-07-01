@@ -28,7 +28,7 @@
   <main class="dashboard-container">
     <h1 class="dashboard-title">Panel Administración</h1>
 
-   
+
 
     <!-- RESUMEN ESTADÍSTICO -->
     <section class="overview">
@@ -60,9 +60,7 @@
       <a href="/expoescom/admin/bloques" class="shortcut">
         <i class="fa-solid fa-clock"></i><span>Gestionar Bloques</span>
       </a>
-      <a href="/expoescom/admin/catalogos" class="shortcut">
-        <i class="fa-solid fa-book"></i><span>Catálogos</span>
-      </a>
+
     </section>
   </main>
 

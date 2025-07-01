@@ -1,155 +1,170 @@
 <?php
-// Variables esperadas en este scope:
-//   $participant        // array con datos del participante cuando es edición, o null para creación
-//   $academias          // [ ['id'=>..,'nombre'=>..], … ]
-//   $unidadesPorAcademia// [ academia_id => [ ['id'=>..,'nombre'=>..], … ], … ]
+// app/Views/admin/participantes_edit.php
+// Recibe $participant, $academias, $unidadesPorAcademia, opcional $_SESSION['errors_part'], $_SESSION['success_part']
+$errors = $_SESSION['errors_part'] ?? [];
+$success = $_SESSION['success_part'] ?? '';
+unset($_SESSION['errors_part'], $_SESSION['success_part']);
 ?>
-<div id="participantModal" class="modal-overlay" hidden>
-    <div class="modal">
-        <h2><?= isset($participant) ? 'Editar Participante' : 'Agregar Participante' ?></h2>
-        <form id="participantForm">
-            <input type="hidden" name="boleta_original" value="<?= htmlspecialchars($participant['boleta'] ?? '') ?>">
+<!DOCTYPE html>
+<html lang="es">
 
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Editar Participante · Admin ExpoESCOM</title>
+    <link rel="stylesheet" href="/expoescom/assets/css/admin-participantes-form.css" />
+    <script defer src="/expoescom/assets/js/admin-participantes-edit.js"></script>
+</head>
+
+<body class="admin-dashboard">
+    <header class="site-header">
+        <a href="/expoescom/admin/participantes">
+            <i class="fa-solid fa-arrow-left"></i> Volver
+        </a>
+    </header>
+    <main class="dashboard-container form-container">
+        <h1>Editar Participante</h1>
+
+        <?php if ($errors): ?>
+            <div class="form-errors">
+                <ul><?php foreach ($errors as $e): ?>
+                        <li><?= htmlspecialchars($e) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($success): ?>
+            <div class="form-success"><?= htmlspecialchars($success) ?></div>
+        <?php endif; ?>
+
+        <form action="/expoescom/admin/participantes/edit/<?= $participant['boleta'] ?>" method="POST" novalidate>
             <div class="field-group">
-                <label for="partBoleta">Boleta</label>
-                <input type="text" id="partBoleta" name="boleta"
-                    value="<?= htmlspecialchars($participant['boleta'] ?? '') ?>" <?= isset($participant) ? 'disabled' : 'required' ?> />
-                <small class="error" id="errorBoleta"></small>
+                <label>Boleta (no editable)</label>
+                <input value="<?= htmlspecialchars($participant['boleta']) ?>" disabled>
             </div>
 
             <div class="field-group">
-                <label for="partNombre">Nombre</label>
-                <input type="text" id="partNombre" name="nombre"
-                    value="<?= htmlspecialchars($participant['nombre'] ?? '') ?>" required />
-                <small class="error" id="errorNombre"></small>
+                <label>Nombre</label>
+                <input name="nombre" value="<?= htmlspecialchars($participant['nombre']) ?>" required>
+                <small class="error">El nombre es obligatorio.</small>
             </div>
 
             <div class="field-group">
-                <label for="partApellidoP">Apellido Paterno</label>
-                <input type="text" id="partApellidoP" name="apellido_paterno"
-                    value="<?= htmlspecialchars($participant['apellido_paterno'] ?? '') ?>" required />
-                <small class="error" id="errorApP"></small>
+                <label>Apellido Paterno</label>
+                <input name="apellido_paterno" value="<?= htmlspecialchars($participant['apellido_paterno']) ?>"
+                    required>
+                <small class="error">Obligatorio.</small>
             </div>
 
             <div class="field-group">
-                <label for="partApellidoM">Apellido Materno</label>
-                <input type="text" id="partApellidoM" name="apellido_materno"
-                    value="<?= htmlspecialchars($participant['apellido_materno'] ?? '') ?>" required />
-                <small class="error" id="errorApM"></small>
+                <label>Apellido Materno</label>
+                <input name="apellido_materno" value="<?= htmlspecialchars($participant['apellido_materno']) ?>"
+                    required>
+                <small class="error">Obligatorio.</small>
             </div>
 
             <div class="field-group">
-                <label for="partGenero">Género</label>
-                <select id="partGenero" name="genero" required>
-                    <option value="">Selecciona…</option>
+                <label>Género</label>
+                <select name="genero" required>
                     <?php foreach (['Mujer', 'Hombre', 'Otro'] as $g): ?>
-                        <option value="<?= $g ?>" <?= isset($participant) && $participant['genero'] == $g ? 'selected' : '' ?>>
+                        <option value="<?= $g ?>" <?= $participant['genero'] === $g ? 'selected' : '' ?>>
                             <?= $g ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <small class="error" id="errorGenero"></small>
+                <small class="error">Selecciona género.</small>
             </div>
 
             <div class="field-group">
-                <label for="partCurp">CURP</label>
-                <input type="text" id="partCurp" name="curp" pattern="[A-ZÑ]{4}\d{6}[HM][A-ZÑ]{5}[A-Z0-9]\d"
-                    value="<?= htmlspecialchars($participant['curp_plain'] ?? '') ?>" required />
-                <small class="error" id="errorCurp"></small>
+                <label>Teléfono</label>
+                <input name="telefono" value="<?= htmlspecialchars($participant['telefono']) ?>" required
+                    pattern="\d{10}">
+                <small class="error">Debe tener 10 dígitos.</small>
             </div>
 
-            <div class="field-group">
-                <label for="partTelefono">Teléfono</label>
-                <input type="text" id="partTelefono" name="telefono" pattern="\d{10}"
-                    value="<?= htmlspecialchars($participant['telefono'] ?? '') ?>" required />
-                <small class="error" id="errorTelefono"></small>
-            </div>
-
-            <div class="field-group">
-                <label for="partCorreoLocal">Correo</label>
+            <div class="field-group label-group">
+                <label>Correo institucional</label>
                 <div class="input-group">
-                    <input type="text" id="partCorreoLocal" name="correo_local"
-                        value="<?= isset($participant) ? explode('@', $participant['correo'])[0] : '' ?>" required />
-                    <span class="input-group-addon">@alumno.ipn.mx</span>
+                    <input name="correo_local" value="<?= explode('@', $participant['correo'])[0] ?>" required>
+                    <span class="input-addon">@alumno.ipn.mx</span>
                 </div>
-                <small class="error" id="errorCorreo"></small>
+                <small class="error">Formato incorrecto.</small>
             </div>
 
             <div class="field-group">
-                <label for="partSemestre">Semestre</label>
-                <input type="number" id="partSemestre" name="semestre" min="1" max="8"
-                    value="<?= htmlspecialchars($participant['semestre'] ?? '') ?>" required />
-                <small class="error" id="errorSemestre"></small>
+                <label>Semestre</label>
+                <input type="number" name="semestre" min="1" max="8" value="<?= $participant['semestre'] ?>" required>
+                <small class="error">1–8.</small>
             </div>
 
             <div class="field-group">
-                <label for="partCarrera">Carrera</label>
-                <select id="partCarrera" name="carrera" required>
-                    <option value="">Selecciona…</option>
+                <label>Carrera</label>
+                <select name="carrera" required>
                     <?php foreach (['ISC', 'LCD', 'IIA'] as $c): ?>
-                        <option value="<?= $c ?>" <?= isset($participant) && $participant['carrera'] == $c ? 'selected' : '' ?>>
+                        <option value="<?= $c ?>" <?= $participant['carrera'] === $c ? 'selected' : '' ?>>
                             <?= $c ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <small class="error" id="errorCarrera"></small>
+                <small class="error">Selecciona carrera.</small>
             </div>
 
             <div class="field-group">
-                <label for="partAcademia">Academia</label>
-                <select id="partAcademia" name="academia_id" required>
-                    <option value="">Selecciona…</option>
+                <label>Academia</label>
+                <select id="editAcademia" name="academia_id" required>
                     <?php foreach ($academias as $a): ?>
-                        <option value="<?= $a['id'] ?>" <?= isset($participant) && $participant['academia_id'] == $a['id'] ? 'selected' : '' ?>>
+                        <option value="<?= $a['id'] ?>" <?= $participant['academia_id'] == $a['id'] ? 'selected' : '' ?>>
                             <?= htmlspecialchars($a['nombre']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <small class="error" id="errorAcademia"></small>
+                <small class="error">Elige academia.</small>
             </div>
 
             <div class="field-group">
-                <label for="partUnidad">Unidad aprendizaje</label>
-                <select id="partUnidad" name="unidad_id" required>
-                    <option value="">Selecciona academia primero</option>
+                <label>Unidad aprendizaje</label>
+                <select id="editUnidad" name="unidad_id" required>
+                    <!-- cargado por JS -->
                 </select>
-                <small class="error" id="errorUnidad"></small>
+                <small class="error">Elige unidad.</small>
             </div>
 
             <div class="field-group">
-                <label for="partHorario">Horario preferido</label>
-                <select id="partHorario" name="horario_preferencia" required>
-                    <option value="">Selecciona…</option>
-                    <option value="Matutino" <?= isset($participant) && $participant['horario_preferencia'] == 'Matutino' ? 'selected' : '' ?>>
-                        Matutino (10:30–13:30)
-                    </option>
-                    <option value="Vespertino" <?= isset($participant) && $participant['horario_preferencia'] == 'Vespertino' ? 'selected' : '' ?>>
-                        Vespertino (15:00–18:00)
-                    </option>
-                </select>
-                <small class="error" id="errorHorario"></small>
+                <label>Nombre de equipo</label>
+                <input name="nombre_equipo" value="<?= htmlspecialchars($participant['nombre_equipo']) ?>" required>
+                <small class="error">Mín. 3 caracteres.</small>
             </div>
 
             <div class="field-group">
-                <label for="partEquipo">Nombre de equipo</label>
-                <input type="text" id="partEquipo" name="nombre_equipo"
-                    value="<?= htmlspecialchars($participant['nombre_equipo'] ?? '') ?>" required />
-                <small class="error" id="errorEquipo"></small>
+                <label>Nombre de proyecto</label>
+                <input name="nombre_proyecto" value="<?= htmlspecialchars($participant['nombre_proyecto']) ?>" required>
+                <small class="error">Mín. 3 caracteres.</small>
             </div>
 
-            <div class="field-group">
-                <label for="partProyecto">Nombre de proyecto</label>
-                <input type="text" id="partProyecto" name="nombre_proyecto"
-                    value="<?= htmlspecialchars($participant['nombre_proyecto'] ?? '') ?>" required />
-                <small class="error" id="errorProyecto"></small>
-            </div>
-
-            <div class="form-actions">
-                <button type="button" id="cancelParticipantBtn" class="btn-cancel">Cancelar</button>
-                <button type="submit" id="saveParticipantBtn" class="btn-save">
-                    <?= isset($participant) ? 'Actualizar' : 'Crear' ?>
-                </button>
-            </div>
+            <button type="submit" class="btn-save">Actualizar Participante</button>
         </form>
-    </div>
-</div>
+    </main>
+
+    <script>
+        // carga dinámica de unidades según academia
+        const unidadesPorAcademia = <?= json_encode($unidadesPorAcademia) ?>;
+        const selA = document.getElementById('editAcademia'),
+            selU = document.getElementById('editUnidad'),
+            pre = <?= $participant['unidad_id'] ?>;
+        function recarga() {
+            selU.innerHTML = '';
+            (unidadesPorAcademia[selA.value] || []).forEach(u => {
+                const o = document.createElement('option');
+                o.value = u.id;
+                o.textContent = u.nombre;
+                if (u.id == pre) o.selected = true;
+                selU.appendChild(o);
+            });
+        }
+        selA.addEventListener('change', recarga);
+        window.addEventListener('DOMContentLoaded', recarga);
+    </script>
+</body>
+
+</html>
