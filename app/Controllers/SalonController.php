@@ -1,5 +1,4 @@
 <?php
-// app/Controllers/SalonController.php
 namespace App\Controllers;
 
 class SalonController

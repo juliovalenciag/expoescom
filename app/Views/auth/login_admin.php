@@ -1,4 +1,3 @@
-<!-- app/Views/auth/login_admin.php -->
 <?php
 $errors = $_SESSION['errors'] ?? [];
 $old = $_SESSION['old'] ?? [];

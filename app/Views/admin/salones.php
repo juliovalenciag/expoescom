@@ -1,5 +1,4 @@
 <?php
-// salones.php
 $errors = $_SESSION['salon_errors'] ?? [];
 $success = $_SESSION['salon_success'] ?? '';
 unset($_SESSION['salon_errors'], $_SESSION['salon_success']);

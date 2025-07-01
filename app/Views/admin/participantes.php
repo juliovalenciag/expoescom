@@ -96,9 +96,7 @@
               <td data-col="academia"><?= htmlspecialchars($p['academia']) ?></td>
               <td data-col="unidad"><?= htmlspecialchars($p['unidad']) ?></td>
               <td data-col="es_ganador" class="winner-cell">
-                <?php if ($p['es_ganador']): ?>
-                  <i class="fa-solid fa-trophy"></i>
-                <?php endif; ?>
+                <i class="fa-solid <?= $p['es_ganador'] ? 'fa-trophy' : 'fa-medal' ?>"></i>
               </td>
               <td data-col="acciones" class="actions">
                 <a href="/expoescom/admin/participantes/edit/<?= $p['boleta'] ?>" class="btn-circle btn-edit"
@@ -109,7 +107,7 @@
                   <i class="fa-solid fa-trash"></i>
                 </button>
                 <button class="btn-circle btn-toggle-winner" title="Toggle ganador">
-                  <i class="fa-solid <?= $p['es_ganador'] ? 'fa-arrow-rotate-left' : 'fa-trophy' ?>"></i>
+                  <i class="fa-solid <?= $p['es_ganador'] ? 'fa-trophy' : 'fa-medal' ?>"></i>
                 </button>
               </td>
             </tr>

@@ -25,7 +25,7 @@ try {
     {
         public function prepare(string $query, array $options = []): \PDOStatement|false
         {
-            // Descomenta la siguiente línea para ver cada consulta SQL:
+            //Para ver las consultaas, descomenta la siguiente línea para ver cada consulta SQL:
             // echo "<pre style='background:#fee;padding:8px;'>SQL> {$query}</pre>";
             return parent::prepare($query, $options);
         }

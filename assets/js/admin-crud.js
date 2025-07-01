@@ -1,4 +1,3 @@
-// admin-crud.js
 document.addEventListener("DOMContentLoaded", () => {
   // Confirm antes de borrar
   document.querySelectorAll(".btn-delete").forEach((btn) => {

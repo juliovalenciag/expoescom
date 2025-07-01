@@ -1,4 +1,3 @@
-/* admin-login.css */
 :root {
   --primary: #004085;
   --primary-hover: #003366;
@@ -19,7 +18,7 @@
 body.admin-login {
   background: var(--bg-light);
   font-family: "Nunito", sans-serif;
-  padding-top: 80px; /* espacio para header */
+  padding-top: 80px; 
   display: flex;
   align-items: center;
   justify-content: center;

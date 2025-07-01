@@ -189,7 +189,7 @@ class AuthController
         }
         session_destroy();
 
-        // redirige al landing (o al login participante, según prefieras)
+        // redirige al landing
         header('Location: ' . BASE_PATH . '/');
         exit;
     }

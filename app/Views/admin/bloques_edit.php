@@ -1,5 +1,5 @@
 <?php
-// bloques_edit.php
+
 $bloque = $bloque;
 ?>
 <!DOCTYPE html>

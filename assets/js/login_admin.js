@@ -1,4 +1,3 @@
-// admin-login.js
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
   const usuario = document.getElementById("usuario");

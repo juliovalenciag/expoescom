@@ -17,7 +17,7 @@ class AsignacionController
      * Asigna el primer salón disponible para el equipo dado y bloque horario.
      * @param int $equipoId
      * @param int $horarioId  (1=Matutino, 2=Vespertino)
-     * @return string salón asignado (p.ej. 'A1')
+     * @return string salón asignado (p.ej. '4012')
      * @throws \Exception si no hay espacio
      */
     public function asignarSalon(int $equipoId, int $horarioId): string

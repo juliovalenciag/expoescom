@@ -9,11 +9,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Registro exitoso · ExpoESCOM</title>
     <link rel="icon" href="/expoescom/assets/images/favicon.ico">
-    <!-- FontAwesome / Nunito / tu CSS de login -->
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css?family=Nunito:400,600&display=swap" rel="stylesheet" />
     <style>
-        /* Copia aquí tu CSS de login, o importa registro.css si quieres */
         :root {
             --primary: #004085;
             --primary-light: #0056b3;

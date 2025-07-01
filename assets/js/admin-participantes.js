@@ -58,21 +58,27 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => {
       const tr = btn.closest("tr");
       const boleta = tr.dataset.boleta;
+      const cellIcon = tr.querySelector('td[data-col="es_ganador"] i');
+      const btnIcon = btn.querySelector("i");
+
+      const wasWinner = cellIcon.classList.contains("fa-trophy");
+
       fetch(`/expoescom/admin/api/participantes/${boleta}/ganador`, {
         method: "POST",
       })
         .then((r) => r.json())
         .then((js) => {
-          if (!js.success) return alert(js.error || "Error");
-          // actualizar icono y celda
-          const cell = tr.querySelector('td[data-col="es_ganador"]');
-          const nowWinner = !cell.querySelector("i.fa-trophy");
-          cell.innerHTML = nowWinner
-            ? '<i class="fa-solid fa-trophy"></i>'
-            : "";
-          btn.innerHTML = `<i class="fa-solid ${
-            nowWinner ? "fa-arrow-rotate-left" : "fa-trophy"
-          }"></i>`;
+          if (!js.success) {
+            return alert(js.error || "Error al alternar ganador");
+          }
+          // invertimos iconos
+          if (wasWinner) {
+            cellIcon.classList.replace("fa-trophy", "fa-medal");
+            btnIcon.classList.replace("fa-trophy", "fa-medal");
+          } else {
+            cellIcon.classList.replace("fa-medal", "fa-trophy");
+            btnIcon.classList.replace("fa-medal", "fa-trophy");
+          }
         });
     });
   });

@@ -1,5 +1,4 @@
 <?php
-// app/Controllers/AlumnoController.php
 namespace App\Controllers;
 
 use App\Controllers\AsignacionController;
@@ -54,7 +53,7 @@ class AlumnoController
         $errors = [];
 
         // 2. VALIDACIONES PREVIAS A LA TRANSACCIÓN
-        // 2.1 Formato y obligatorios (igual que antes)...
+        // 2.1 Formato y obligatorios
         if (!preg_match('/^(?:\d{10}|(?:PE|PP)\d{8})$/', $data['boleta'])) {
             $errors[] = 'Boleta inválida. Debe ser 10 dígitos o PE/PP + 8 dígitos.';
         }

@@ -10,13 +10,13 @@ class AdminController
 
     public function __construct()
     {
-        // La sesión y la conexión PDO ya están inicializadas en routes.php
+
         global $pdo;
         $this->pdo = $pdo;
     }
 
     /**
-     * 6) Dashboard: totales de alumnos, equipos y ganadores
+     * totales de alumnos, equipos y ganadores
      */
     public function dashboard()
     {
@@ -33,7 +33,7 @@ class AdminController
         exit;
     }
     /**
-     * 7) Vista HTML: listado de participantes
+     * listado de participantes
      */
 
     public function list()
@@ -103,7 +103,7 @@ class AdminController
             return;
         }
 
-        // 1) Validaciones mínimas (puedes extender)
+        //Validaciones
         $errors = [];
         if (!preg_match('/^(?:\d{10}|(?:PE|PP)\d{8})$/', $data['boleta'] ?? '')) {
             $errors[] = 'Boleta inválida';
@@ -126,7 +126,7 @@ class AdminController
         try {
             $this->pdo->beginTransaction();
 
-            // 2) Encriptar CURP y hashear password
+            //Encriptar CURP y hashear password
             $iv = str_repeat("\0", openssl_cipher_iv_length('AES-256-CBC'));
             $hashCURP = openssl_encrypt(
                 strtoupper($data['curp']),
@@ -137,7 +137,7 @@ class AdminController
             );
             $hashPwd = password_hash($data['password'], PASSWORD_BCRYPT);
 
-            // 3) Insertar alumno
+            //Insertar alumno
             $stmt = $this->pdo->prepare("
                 INSERT INTO alumnos
                   (boleta,nombre,apellido_paterno,apellido_materno,
@@ -158,7 +158,7 @@ class AdminController
                 $hashPwd
             ]);
 
-            // 4) Buscar o crear equipo
+            // Buscar o crear equipo
             $stmt = $this->pdo->prepare("
                 SELECT id
                   FROM equipos
@@ -183,7 +183,7 @@ class AdminController
                 $equipoId = (int) $this->pdo->lastInsertId();
             }
 
-            // 5) Asociar al alumno con unidad
+            //Asociar al alumno con unidad
             $stmt = $this->pdo->prepare("
                 INSERT INTO miembros_equipo
                   (alumno_boleta,equipo_id,unidad_id)
@@ -316,7 +316,7 @@ class AdminController
      */
     public function storeParticipant()
     {
-        // 1) Recoger y sanear
+        // Recoger y sanear
         $data = [
             'boleta' => trim($_POST['boleta'] ?? ''),
             'nombre' => trim($_POST['nombre'] ?? ''),
@@ -336,7 +336,7 @@ class AdminController
             'nombre_proyecto' => trim($_POST['nombre_proyecto'] ?? ''),
         ];
 
-        // 2) Validaciones
+        // Validaciones
         $errors = [];
         if (!preg_match('/^(?:\d{10}|(?:PE|PP)\d{8})$/', $data['boleta'])) {
             $errors[] = 'Boleta inválida.';
@@ -383,10 +383,10 @@ class AdminController
             exit;
         }
 
-        // 3) Insertar dentro de una transacción
+        // Insertar dentro de una transacción
         try {
             $this->pdo->beginTransaction();
-            // 3.1 Alumnos
+            // Alumnos
             $iv = str_repeat("\0", openssl_cipher_iv_length('AES-256-CBC'));
             $encCURP = openssl_encrypt($data['curp'], 'AES-256-CBC', 'TU_LLAVE_DE_AES', OPENSSL_RAW_DATA, $iv);
             $hashPwd = password_hash($data['password'], PASSWORD_BCRYPT);
@@ -411,7 +411,7 @@ class AdminController
                 $hashPwd
             ]);
 
-            // 3.2 Equipos (buscar o crear)
+            //  Equipos (buscar o crear)
             $stmt = $this->pdo->prepare("SELECT id FROM equipos WHERE nombre_equipo = ?");
             $stmt->execute([$data['nombre_equipo']]);
             $equipoId = $stmt->fetchColumn();
@@ -429,7 +429,7 @@ class AdminController
                 $equipoId = $this->pdo->lastInsertId();
             }
 
-            // 3.3 Miembros
+            //  Miembros
             $stmt = $this->pdo->prepare("
           INSERT INTO miembros_equipo (alumno_boleta,equipo_id,unidad_id)
           VALUES (?,?,?)
@@ -454,7 +454,7 @@ class AdminController
 
     public function showEditParticipant(string $boleta)
     {
-        // 1) traer datos del participante junto con su equipo, academia y unidad
+        //  traer datos del participante junto con su equipo, academia y unidad
         $stmt = $this->pdo->prepare("
             SELECT 
               a.boleta,
@@ -507,7 +507,7 @@ class AdminController
 
     public function updateParticipant(string $boleta)
     {
-        // 1) Validar existencia
+        // Validar existencia
         $stmt = $this->pdo->prepare("SELECT 1 FROM alumnos WHERE boleta = ?");
         $stmt->execute([$boleta]);
         if (!$stmt->fetchColumn()) {
@@ -516,7 +516,7 @@ class AdminController
             exit;
         }
 
-        // 2) Capturar y sanear
+        //  Capturar y sanear
         $nombre = trim($_POST['nombre'] ?? '');
         $apellidoP = trim($_POST['apellido_paterno'] ?? '');
         $apellidoM = trim($_POST['apellido_materno'] ?? '');
@@ -531,7 +531,6 @@ class AdminController
         $nombreProyecto = trim($_POST['nombre_proyecto'] ?? '');
 
         $errors = [];
-        // (aquí puedes agregar validaciones como patrón de boleta, teléfono, correo_local, etc.)
 
         if ($nombre === '' || $apellidoP === '' || $apellidoM === '') {
             $errors[] = 'Nombre y apellidos son obligatorios.';
@@ -573,11 +572,11 @@ class AdminController
             exit;
         }
 
-        // 3) Actualizar en transacción
+        //  Actualizar en transacción
         try {
             $this->pdo->beginTransaction();
 
-            // 3.1. Update alumnos
+            //  Update alumnos
             $stmt = $this->pdo->prepare("
                 UPDATE alumnos SET
                   nombre=?, apellido_paterno=?, apellido_materno=?,
@@ -596,7 +595,7 @@ class AdminController
                 $boleta
             ]);
 
-            // 3.2. Update equipos
+            //  Update equipos
             // primero obtener equipo_id
             $stmt = $this->pdo->prepare("
                 SELECT equipo_id FROM miembros_equipo WHERE alumno_boleta=?
@@ -611,7 +610,7 @@ class AdminController
             ");
             $stmt->execute([$nombreEquipo, $nombreProyecto, $academiaId, $equipoId]);
 
-            // 3.3. Update unidad en miembros_equipo
+            //  Update unidad en miembros_equipo
             $stmt = $this->pdo->prepare("
                 UPDATE miembros_equipo
                    SET unidad_id=?
@@ -634,7 +633,7 @@ class AdminController
 
     public function salones()
     {
-        // 1) Obtengo para cada salón su capacidad y la ocupación por bloque
+        //  Obtengo para cada salón su capacidad y la ocupación por bloque
         $sql = "
       SELECT
         s.id         AS salon,
@@ -650,7 +649,7 @@ class AdminController
         $stmt = $this->pdo->query($sql);
         $salones = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        // 2) Paso al view
+        
         include __DIR__ . '/../Views/admin/salones.php';
     }
     public function salonesIndex()

@@ -1,4 +1,4 @@
-/* admin.css */
+
 :root {
   --primary: #004085;
   --primary-light: #0056b3;
@@ -213,7 +213,6 @@ body.admin-dashboard {
   background: var(--primary-light);
 }
 
-/* Responsive */
 @media (max-width: 600px) {
   .stats-grid,
   .shortcuts {

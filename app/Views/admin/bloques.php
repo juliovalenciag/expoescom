@@ -1,5 +1,4 @@
 <?php
-// bloques.php
 $errors = $_SESSION['bloque_errors'] ?? [];
 $success = $_SESSION['bloque_success'] ?? '';
 unset($_SESSION['bloque_errors'], $_SESSION['bloque_success']);

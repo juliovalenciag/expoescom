@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 // 1) Definir ruta base de la aplicación
-require __DIR__ . '/config/app.php'; 
+require __DIR__ . '/config/app.php';
 
 // 2) Arrancar sesión una sola vez por petición
 if (session_status() === PHP_SESSION_NONE) {
@@ -16,7 +16,7 @@ require __DIR__ . '/config/database.php';
 
 // 4) Autocarga de clases en app/Controllers y app/Models bajo namespace App\
 spl_autoload_register(function ($class) {
-    $prefix  = 'App\\';
+    $prefix = 'App\\';
     $baseDir = __DIR__ . '/app/';
 
     // Solo cargamos clases de nuestro namespace
@@ -32,10 +32,10 @@ spl_autoload_register(function ($class) {
     }
 });
 
-// 5) Cargar el Dispatcher (tus rutas)
+// 5) Cargar el Dispatcher
 require __DIR__ . '/routes.php';
 
-// 6) Resolver la ruta actual (sin el prefijo BASE_PATH)
+// 6) Resolver la ruta actual 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 if (strpos($uri, BASE_PATH) === 0) {
     $route = substr($uri, strlen(BASE_PATH));

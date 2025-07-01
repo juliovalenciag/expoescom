@@ -108,7 +108,6 @@ body.admin-dashboard {
   background: #f9f9f9;
 }
 
-/* Responsive: mostrar etiquetas en celda */
 @media (max-width: 700px) {
   .salones-table thead {
     display: none;

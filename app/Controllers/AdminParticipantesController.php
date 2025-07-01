@@ -67,7 +67,7 @@ class AdminParticipantesController
             return json_encode(['error' => 'Payload invalido']);
         }
 
-        // Validaciones mínimas
+        // Validaciones
         $errors = [];
         if (!preg_match('/^(?:\d{10}|(?:PE|PP)\d{8})$/', $data['boleta'] ?? '')) {
             $errors[] = 'Boleta invalida';
@@ -78,7 +78,7 @@ class AdminParticipantesController
         ) {
             $errors[] = 'Correo invalido';
         }
-        // ... (aquí podrías añadir más validaciones de nombre, telefono, etc.)
+
 
         if ($errors) {
             http_response_code(422);
@@ -95,7 +95,7 @@ class AdminParticipantesController
                    genero,curp,telefono,semestre,carrera,correo,password)
                 VALUES (?,?,?,?,?,?,?,?,?,?,?)
             ");
-            // curp y password arbitrarios o vacíos: admin luego puede pedir reset
+            
             $iv = str_repeat("\0", openssl_cipher_iv_length('AES-256-CBC'));
             $dummyCurp = openssl_encrypt('XXXXXXXXXXXXXX', 'AES-256-CBC', 'TU_LLAVE_DE_AES', OPENSSL_RAW_DATA, $iv);
             $stmt->execute([
@@ -112,7 +112,7 @@ class AdminParticipantesController
                 password_hash($data['password'] ?? bin2hex(random_bytes(4)), PASSWORD_BCRYPT)
             ]);
 
-            // 2) Equipo: si no viene ID, crear uno genérico
+            // 2) Equipo: si no viene ID, crea uno genérico
             if (!empty($data['equipo_id'])) {
                 $equipoId = (int) $data['equipo_id'];
             } else {
