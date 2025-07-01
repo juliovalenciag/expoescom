@@ -130,13 +130,6 @@ class AlumnoController
         if ($stmt->fetch()) {
             $errors[] = 'El correo ya está registrado.';
         }
-        // nombre de equipo
-        $stmt = $this->pdo->prepare("SELECT 1 FROM equipos WHERE nombre_equipo = ?");
-        $stmt->execute([$data['nombre_equipo']]);
-        if ($stmt->fetch()) {
-            $errors[] = 'El nombre del equipo ya está en uso.';
-        }
-
         // Si hay **cualquiera** errores, vuelvo a la forma
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
@@ -149,18 +142,24 @@ class AlumnoController
         try {
             $this->pdo->beginTransaction();
 
-            // cifrar CURP y hash de password
+            // 3.1. Cifrar CURP y generar hash de contraseña
             $iv = str_repeat("\0", openssl_cipher_iv_length('AES-256-CBC'));
-            $hashCURP = openssl_encrypt($data['curp'], 'AES-256-CBC', 'TU_LLAVE_DE_AES', OPENSSL_RAW_DATA, $iv);
+            $hashCURP = openssl_encrypt(
+                $data['curp'],
+                'AES-256-CBC',
+                'TU_LLAVE_DE_AES',
+                OPENSSL_RAW_DATA,
+                $iv
+            );
             $hashPwd = password_hash($data['password1'], PASSWORD_BCRYPT);
 
-            // insertar alumno
+            // 3.2. Insertar alumno
             $stmt = $this->pdo->prepare("
-            INSERT INTO alumnos
-              (boleta,nombre,apellido_paterno,apellido_materno,
-               genero,curp,telefono,semestre,carrera,correo,password)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?)
-        ");
+        INSERT INTO alumnos
+          (boleta, nombre, apellido_paterno, apellido_materno,
+           genero, curp, telefono, semestre, carrera, correo, password)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)
+    ");
             $stmt->execute([
                 $data['boleta'],
                 $data['nombre'],
@@ -172,49 +171,76 @@ class AlumnoController
                 $data['semestre'],
                 $data['carrera'],
                 $data['correo'],
-                $hashPwd
+                $hashPwd,
             ]);
 
-            // crear equipo
+            // 3.3. Buscar o crear equipo y asociar al alumno
+
+            // — 1) Intentar obtener el equipo existente
             $stmt = $this->pdo->prepare("
+        SELECT id
+          FROM equipos
+         WHERE nombre_equipo = ?
+         LIMIT 1
+    ");
+            $stmt->execute([$data['nombre_equipo']]);
+            $equipoId = $stmt->fetchColumn();
+
+            // — 2) Si no existe, crearlo
+            if (!$equipoId) {
+                $stmt = $this->pdo->prepare("
             INSERT INTO equipos
-              (nombre_equipo,nombre_proyecto,academia_id,horario_preferencia)
+              (nombre_equipo, nombre_proyecto, academia_id, horario_preferencia)
             VALUES (?,?,?,?)
         ");
-            $stmt->execute([
-                $data['nombre_equipo'],
-                $data['nombre_proyecto'],
-                $data['academia'],
-                $data['horario']
-            ]);
-            $equipoId = (int) $this->pdo->lastInsertId();
+                $stmt->execute([
+                    $data['nombre_equipo'],
+                    $data['nombre_proyecto'],
+                    $data['academia'],
+                    $data['horario'],
+                ]);
+                $equipoId = (int) $this->pdo->lastInsertId();
+            }
 
-            // vincular miembro
+            // — 3) Asociar al alumno (o actualizar unidad si ya existía)
             $stmt = $this->pdo->prepare("
-            INSERT INTO miembros_equipo
-              (alumno_boleta,equipo_id,unidad_id)
-            VALUES (?,?,?)
-        ");
+        INSERT INTO miembros_equipo
+          (alumno_boleta, equipo_id, unidad_id)
+        VALUES (?,?,?)
+        ON DUPLICATE KEY
+          UPDATE unidad_id = VALUES(unidad_id)
+    ");
             $stmt->execute([
                 $data['boleta'],
                 $equipoId,
-                $data['unidad']
+                $data['unidad'],
             ]);
 
-            // asignar salón
-            $horarioId = $data['horario'] === 'Matutino' ? 1 : 2;
-            $salon = (new AsignacionController)
-                ->asignarSalon($equipoId, $horarioId);
+            // 3.4. Asignar salón/horario automáticamente
+            try {
+                $horarioId = $data['horario'] === 'Matutino' ? 1 : 2;
+                $salon = (new AsignacionController)
+                    ->asignarSalon($equipoId, $horarioId);
+            } catch (\Exception $e) {
+                // si no hay salones disponibles
+                $this->pdo->rollBack();
+                $errors[] = $e->getMessage();  // “No hay salones disponibles…”
+                $_SESSION['errors'] = $errors;
+                $_SESSION['old'] = $data;
+                header('Location: ' . BASE_PATH . '/register');
+                exit;
+            }
 
             $this->pdo->commit();
 
-            $_SESSION['success'] = "Registro exitoso. Salón asignado: $salon.";
-            header('Location: ' . BASE_PATH . '/login/participante');
+            $boleta = $data['boleta'];
+            include __DIR__ . '/../Views/auth/register-success.php';
             exit;
 
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
-            // Si aun así llega un 23000, mostramos mensaje genérico
+
+            // 3.6. Manejo de errores
             if ($e->getCode() === '23000') {
                 $errors[] = 'Ya existe un registro duplicado en la base de datos.';
             } else {
@@ -226,8 +252,6 @@ class AlumnoController
             exit;
         }
     }
-
-
 
     /**
      * Muestra el dashboard del participante con descarga de Acuse/Diploma.

@@ -29,7 +29,7 @@ CREATE TABLE unidades_aprendizaje (
 
 -- 2.3. Salones
 CREATE TABLE salones (
-  id        CHAR(2) PRIMARY KEY COMMENT 'Ej: A1, B2',
+  id        CHAR(4) PRIMARY KEY COMMENT 'Ej: 4011, 4010',
   capacidad TINYINT UNSIGNED NOT NULL DEFAULT 5
 ) ENGINE=InnoDB;
 
@@ -97,55 +97,6 @@ CREATE TABLE miembros_equipo (
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
-DELIMITER $$
-CREATE PROCEDURE sp_registrar_en_equipo (
-  IN p_boleta        CHAR(10),
-  IN p_nombre_equipo VARCHAR(40),
-  IN p_nombre_proy   VARCHAR(120),
-  IN p_academia_id   INT,
-  IN p_horario_pref  ENUM('Matutino','Vespertino'),
-  IN p_unidad_id     INT
-)
-BEGIN
-  DECLARE v_equipo_id INT;
-
-  -- 1. Intentar obtener el equipo existente
-  SELECT id
-    INTO v_equipo_id
-    FROM equipos
-   WHERE nombre_equipo = p_nombre_equipo
-   LIMIT 1;
-
-  -- 2. Si no existe, crear uno nuevo
-  IF v_equipo_id IS NULL THEN
-    INSERT INTO equipos (
-      nombre_equipo,
-      nombre_proyecto,
-      academia_id,
-      horario_preferencia
-    ) VALUES (
-      p_nombre_equipo,
-      p_nombre_proy,
-      p_academia_id,
-      p_horario_pref
-    );
-    SET v_equipo_id = LAST_INSERT_ID();
-  END IF;
-
-  -- 3. Asociar al alumno al equipo
-  INSERT INTO miembros_equipo (
-    alumno_boleta,
-    equipo_id,
-    unidad_id
-  ) VALUES (
-    p_boleta,
-    v_equipo_id,
-    p_unidad_id
-  )
-  ON DUPLICATE KEY UPDATE
-    unidad_id = VALUES(unidad_id);
-END$$
-DELIMITER ;
 
 -- ====================================================
 -- 4. Asignaciones de salón, fecha y horario
@@ -153,7 +104,7 @@ DELIMITER ;
 CREATE TABLE asignaciones (
   id         INT AUTO_INCREMENT PRIMARY KEY,
   equipo_id  INT NOT NULL UNIQUE,
-  salon_id   CHAR(2) NOT NULL,
+  salon_id   CHAR(4) NOT NULL,
   horario_id TINYINT UNSIGNED NOT NULL,
   fecha      DATE NOT NULL COMMENT 'Fecha del evento EXPOESCOM',
   FOREIGN KEY (equipo_id)
@@ -171,27 +122,6 @@ CREATE TABLE asignaciones (
   INDEX idx_fecha_horario (fecha, horario_id)
 ) ENGINE=InnoDB;
 
--- Trigger para controlar capacidad por salón/bloque
-DELIMITER $$
-CREATE TRIGGER trg_before_insert_asignacion
-BEFORE INSERT ON asignaciones
-FOR EACH ROW
-BEGIN
-  DECLARE cnt INT; DECLARE cap INT;
-  SELECT COUNT(*) INTO cnt
-    FROM asignaciones
-   WHERE salon_id = NEW.salon_id
-     AND horario_id = NEW.horario_id
-     AND fecha = NEW.fecha;
-  SELECT capacidad INTO cap
-    FROM salones
-   WHERE id = NEW.salon_id;
-  IF cnt >= cap THEN
-    SIGNAL SQLSTATE '45000'
-      SET MESSAGE_TEXT = 'Capacidad excedida en salón/horario';
-  END IF;
-END$$
-DELIMITER ;
 
 -- ====================================================
 -- 5. Administrador único
@@ -357,9 +287,6 @@ INSERT INTO unidades_aprendizaje (nombre, academia_id) VALUES
   ('Procesamiento Digital de Señales',         (SELECT id FROM academias WHERE nombre='Sistemas Digitales')),
   ('Sistemas en Chip',                         (SELECT id FROM academias WHERE nombre='Sistemas Digitales'));
 
--- 6.3. Salones
-INSERT INTO salones (id, capacidad) VALUES
-  ('4010',5),('4011',5),('4012',5),('4013',5),('4014',5);
 
 -- 6.4. Bloques horarios
 INSERT INTO horarios_bloques (id, tipo, hora_inicio, hora_fin) VALUES
@@ -372,3 +299,7 @@ INSERT INTO administradores (usuario, password) VALUES
 ALTER TABLE asignaciones
   ADD COLUMN hora_inicio TIME AFTER fecha,
   ADD COLUMN hora_fin TIME AFTER hora_inicio;
+
+
+INSERT INTO salones (id, capacidad) VALUES
+  ('4010',5),('4011',5),('4012',5),('4013',5),('4014',5);

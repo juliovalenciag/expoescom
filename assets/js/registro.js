@@ -184,6 +184,33 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // — Autocomplete de “Equipo” —
+    const equipoInput = document.getElementById("nombre_equipo");
+    const equiposList = document.getElementById("equipos-list");
+
+    equipoInput.addEventListener("input", async () => {
+      const q = equipoInput.value.trim();
+      if (q.length < 2) return;
+
+      try {
+        const res = await fetch(
+          `/expoescom/api/equipos?search=${encodeURIComponent(q)}`
+        );
+        if (!res.ok) throw new Error();
+        const items = await res.json(); // [{id, nombre_equipo}, …]
+
+        // vaciar datalist y rellenar
+        equiposList.innerHTML = "";
+        for (const e of items) {
+          const opt = document.createElement("option");
+          opt.value = e.nombre_equipo;
+          equiposList.appendChild(opt);
+        }
+      } catch {
+        // opcional: console.warn('No se pudo cargar equipos');
+      }
+    });
+
     // Construir tabla de resumen
     const fields = [
       { id: "boleta", label: "Boleta" },

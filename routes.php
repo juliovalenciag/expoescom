@@ -4,6 +4,7 @@ use App\Controllers\AlumnoController;
 use App\Controllers\AdminController;
 use App\Controllers\PDFController;
 use App\Controllers\UnidadController;
+use App\Controllers\EquipoController;
 use App\Controllers\AdminParticipantesController;
 
 require_once __DIR__ . '/config/app.php';
@@ -37,6 +38,10 @@ class Dispatcher
 
         if ($route === '/participante' && $method === 'GET') {
             return (new AlumnoController)->dashboard();
+        }
+
+        if ($route === '/expoescom/api/equipos' && $method === 'GET') {
+            return (new EquipoController)->search();
         }
         // 4) Login admin
         if ($route === '/login/admin') {

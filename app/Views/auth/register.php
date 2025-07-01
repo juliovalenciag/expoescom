@@ -291,13 +291,16 @@
             </div>
             <div class="field-group">
               <label for="nombre_equipo"><i class="fa-solid fa-users"></i> Equipo</label>
-              <input
-                type="text" id="nombre_equipo" name="nombre_equipo"
-                placeholder="Nombre equipo"
-                value="<?= htmlspecialchars($old['nombre_equipo'] ?? '') ?>"
-                required
-              />
-              <small class="error">Min 3 car.</small>
+<input
+  list="equipos-list"
+  id="nombre_equipo"
+  name="nombre_equipo"
+  placeholder="Nombre equipo"
+  value="<?= htmlspecialchars($old['nombre_equipo'] ?? '') ?>"
+  required
+/>
+<datalist id="equipos-list"><!-- opciones se inyectan vía JS --></datalist>
+<small class="error">Min 3 car.</small>
             </div>
             <div class="buttons">
               <button type="button" class="btn-prev">Atrás</button>
